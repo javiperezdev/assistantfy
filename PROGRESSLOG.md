@@ -8,3 +8,5 @@ At midnight, I implemented and learned about raising exceptions, changed the lis
 
 ### 2026-03-07
 Today, I learned who to configue the .env, how to access to the variables, how to use BaseSettings and I am understandig how whatsapp API works, so later I would at least get the verification from the API with the webhook
+
+to conclude the day, I learned what ngrok is and how to use it, I got the verification whatsapp API which means that I integrated the API successfully and I learned concepts such as query params and why do you need to use 'Alias'. Overrall I am really happy on how I am developing and learning from this project, keeping this progress log is making things easier and more fulfilling.
