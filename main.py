@@ -41,7 +41,7 @@ async def send_message(message : Message):
     temporal_messages[len(temporal_messages)] = message.content
     return {"message" : message.content}
 
-# Webhook (this would be refactorized after the mvp)
+# whatsapp webhook (this would be refactorized after the mvp)
 
 '''
 This is required for meta verification, I used an alias to access the 'hub.mode' 
@@ -56,6 +56,14 @@ async def get_webhook(mode: str = Query(alias="hub.mode"), verify_token: str = Q
             return challenge
     
     raise HTTPException(status_code=403, detail="Access is forbidden!")
+
+
+@app.post("/webhook")
+async def post_webhook(body: dict):
+    print(body)
+    return {"status": "ok"}
+
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
