@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import uvicorn
 
@@ -8,15 +8,13 @@ app = FastAPI()
 # This would be refactorized after MVP to core/config.py
 class Settings(BaseSettings):
     verification_token: str
+    phone_number_id: str
     # I have declared extra=ignore just for testing reasons, I should change this before the MVP
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
 
 # Message is receiving only content now because we are doing a CRUD, this should change
-
-class Message(BaseModel):
-    content: str
 
 temporal_messages : dict[int, str] = {}
 
@@ -34,14 +32,29 @@ async def search_message(id: int):
         raise HTTPException(status_code=404, detail=f"There isn't a message with id: {id}")
     return temporal_messages[id]
 
-# Id is generated this way because we are doing a CRUD, this should change
-
-@app.post("/messages/") 
-async def send_message(message : Message):
-    temporal_messages[len(temporal_messages)] = message.content
-    return {"message" : message.content}
-
 # whatsapp webhook (this would be refactorized after the mvp)
+
+class Text(BaseModel):
+    body: str
+
+# 'text' attribute accepts None because there are some cases, where we won't receive text (audio, img...) 
+
+class Message(BaseModel):
+    phone_number: str = Field(alias="from")
+    text: Text | None = None
+
+class Value(BaseModel):
+    messages: list[Message]
+
+class Change(BaseModel):
+    value: Value | None = None
+
+class Entry(BaseModel):
+    changes: list[Change]
+
+class WebhookBody(BaseModel):
+    entry: list[Entry]
+
 
 '''
 This is required for meta verification, I used an alias to access the 'hub.mode' 
@@ -59,9 +72,24 @@ async def get_webhook(mode: str = Query(alias="hub.mode"), verify_token: str = Q
 
 
 @app.post("/webhook")
-async def post_webhook(body: dict):
-    print(body)
+async def post_webhook(body: WebhookBody):
+    message = body.entry[0].changes[0].value.messages[0]
+    content = message.text.body
+    phone_number = message.phone_number
+    send_message(message)
+    print(phone_number + " sent: " + content)
     return {"status": "ok"}
+
+# Version might get us some trouble in the future, is something I have to study
+
+'''
+I need to implement request library to send whatsapp message
+'''
+
+@app.post(f"https://graph.facebook.com/v22.0/{settings.phone_number_id}/messages") 
+async def send_message(message : Message, content: str):
+    message_content = message.text.body
+    return {"status" : "ok"}
 
 
 

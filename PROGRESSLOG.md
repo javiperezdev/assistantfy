@@ -13,3 +13,6 @@ to conclude the day, I learned what ngrok is and how to use it, I got the verifi
 
 ### 2026-03-08
 Today I only implemented, the post for the webhook, from there I would receive the messages from the future, currenty it just prints the raw JSON, just for testing reasons.
+
+### 2026-03-09
+I am really excited, to tell that I have implemented the functionality to receive whatsapp messages, the nested json was a hard concept to grasp and I was working in the sending_messages() method, by tomorrow this would be finished.
