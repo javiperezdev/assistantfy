@@ -15,4 +15,7 @@ to conclude the day, I learned what ngrok is and how to use it, I got the verifi
 Today I only implemented, the post for the webhook, from there I would receive the messages from the future, currenty it just prints the raw JSON, just for testing reasons.
 
 ### 2026-03-09
-I am really excited, to tell that I have implemented the functionality to receive whatsapp messages, the nested json was a hard concept to grasp and I was working in the sending_messages() method, by tomorrow this would be finished.
+I am really excited, to tell that I have implemented the functionality to receive whatsapp messages, the nested json was a hard concept to grasp and I was working in the send_messages() method, by tomorrow this would be finished.
+
+### 2026-03-10
+I learned about the Requests library how it works and how to debug responses (using 'response.text' and 'response.status_code'). I also implemented the method to send messages (without AI responses for now, obviously). Apart from these successes, I still need to resolve the events for reading messages, which are currently returning a 422 Unprocessable Entity error.

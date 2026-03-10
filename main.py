@@ -2,12 +2,14 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import uvicorn
+import requests
 
 app = FastAPI()
 
 # This would be refactorized after MVP to core/config.py
 class Settings(BaseSettings):
     verification_token: str
+    whatsapp_token: str
     phone_number_id: str
     # I have declared extra=ignore just for testing reasons, I should change this before the MVP
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -57,7 +59,7 @@ class WebhookBody(BaseModel):
 
 
 '''
-This is required for meta verification, I used an alias to access the 'hub.mode' 
+Method required for meta verification, I used an alias to access the 'hub.mode' 
 and the two  'hub.', because we can't use directly that for the name of a variable,
 I also use Query because arguments come from the url.
 '''
@@ -70,27 +72,46 @@ async def get_webhook(mode: str = Query(alias="hub.mode"), verify_token: str = Q
     
     raise HTTPException(status_code=403, detail="Access is forbidden!")
 
+'''
+Method required for receiving messages from whatsapp, which triggers 'send_message()'
+'''
 
 @app.post("/webhook")
 async def post_webhook(body: WebhookBody):
     message = body.entry[0].changes[0].value.messages[0]
     content = message.text.body
     phone_number = message.phone_number
-    send_message(message)
-    print(phone_number + " sent: " + content)
+    send_message(phone_number, content)
     return {"status": "ok"}
 
-# Version might get us some trouble in the future, is something I have to study
 
 '''
-I need to implement request library to send whatsapp message
+post_webhook(), calls send_message() which is a synchronous method because we are using request library
+This method is in charge of sending the whatsapp messages
+I have to fix the responses of the events that my server is receiving that aren't messages
 '''
 
-@app.post(f"https://graph.facebook.com/v22.0/{settings.phone_number_id}/messages") 
-async def send_message(message : Message, content: str):
-    message_content = message.text.body
-    return {"status" : "ok"}
+def send_message(phone_number : str, content: str):
+    meta_url = f"https://graph.facebook.com/v22.0/{settings.phone_number_id}/messages"
 
+    # meta is strict so the keys should have this name 
+
+    meta_headers = {
+        "Authorization": f"Bearer {settings.whatsapp_token}",
+        "Content-Type": "application/json"
+    }
+
+    # Currently, our method is just forwarding what the user is sending 
+
+    payload = {
+    "messaging_product": "whatsapp",
+    "to": phone_number,
+    "type": "text",
+    "text": {"body": content}
+    }
+
+    response = requests.post(url=meta_url, headers=meta_headers, json=payload)
+    print(response.text)
 
 
 if __name__ == "__main__":
