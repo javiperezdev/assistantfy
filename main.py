@@ -46,7 +46,8 @@ class Message(BaseModel):
     text: Text | None = None
 
 class Value(BaseModel):
-    messages: list[Message]
+    messages: list[Message] | None = None # It can be none, to avoid status calls
+    statuses: list[dict] | None = None
 
 class Change(BaseModel):
     value: Value | None = None
@@ -78,10 +79,14 @@ Method required for receiving messages from whatsapp, which triggers 'send_messa
 
 @app.post("/webhook")
 async def post_webhook(body: WebhookBody):
-    message = body.entry[0].changes[0].value.messages[0]
-    content = message.text.body
-    phone_number = message.phone_number
-    send_message(phone_number, content)
+    value = body.entry[0].changes[0].value
+    message = value.messages
+    if message is not None:
+        content = message[0].text.body
+        phone_number = message[0].phone_number
+        send_message(phone_number, content)
+    else:
+        print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}
 
 
@@ -111,7 +116,6 @@ def send_message(phone_number : str, content: str):
     }
 
     response = requests.post(url=meta_url, headers=meta_headers, json=payload)
-    print(response.text)
 
 
 if __name__ == "__main__":

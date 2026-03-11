@@ -19,3 +19,6 @@ I am really excited, to tell that I have implemented the functionality to receiv
 
 ### 2026-03-10
 I learned about the Requests library how it works and how to debug responses (using 'response.text' and 'response.status_code'). I also implemented the method to send messages (without AI responses for now, obviously). Apart from these successes, I still need to resolve the events for reading messages, which are currently returning a 422 Unprocessable Entity error.
+
+### 2026-03-11
+I fixed the bug with message status updates ('read', 'sent', 'delivered'). The fix was just allowing the message list to be None. I also added a statuses attribute to the Value class to print events to the terminal for easier debugging
