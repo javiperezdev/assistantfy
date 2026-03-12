@@ -22,3 +22,6 @@ I learned about the Requests library how it works and how to debug responses (us
 
 ### 2026-03-11
 I fixed the bug with message status updates ('read', 'sent', 'delivered'). The fix was just allowing the message list to be None. I also added a statuses attribute to the Value class to print events to the terminal for easier debugging
+
+### 2026-03-12
+Today, I learned about APIRouters. I ran into some routing issues, but I resolved them by consulting the FastAPI documentation and using AI to troubleshoot the logic. I'm excited to have a clean foundation and a great starting point for AI implementation. Additionally, I wrote the project's README, a necessary step as I intend to make the repository public.
