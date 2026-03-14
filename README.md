@@ -13,21 +13,32 @@ The goal of this project is to build a highly scalable, asynchronous backend tha
 
 📖 **Track my daily progress and technical decisions here:** [PROGRESSLOG.md](./PROGRESSLOG.md)
 
-`   **1. Clone the repository**  ```bash  git clone [https://github.com/javiperezdev/assistantfy.git](https://github.com/javiperezdev/assistantfy.git)  cd assistantfy   `
+**1. Clone the repository** 
+ ```bash
+   git clone [https://github.com/javiperezdev/assistantfy.git](https://github.com/javiperezdev/assistantfy.git)  
+   cd assistantfy 
+```
 
-**2\. Create a virtual environment and install dependencies**
+**2. Create a virtual environment and install dependencies**
 
+```bash
+python -m venv venv  source venv/bin/activate  # On Windows use `venv\Scripts\activate`  pip install -r requirements.txt   
+```
 
-``python -m venv venv  source venv/bin/activate  # On Windows use `venv\Scripts\activate`  pip install -r requirements.txt   ``
+**3. Environment Variables**Create a .env file in the root directory:
 
-**3\. Environment Variables**Create a .env file in the root directory:
+```shell 
+WHATSAPP_TOKEN=your_meta_system_user_token  
+VERIFY_TOKEN=your_custom_verify_token  
+PHONE_NUMBER_ID=your_meta_phone_number_id   
+```
 
-`WHATSAPP_TOKEN=your_meta_system_user_token  VERIFY_TOKEN=your_custom_verify_token  PHONE_NUMBER_ID=your_meta_phone_number_id   `
+**4. Run the development server**
 
-**4\. Run the development server**
+```bash 
+uvicorn app.main:app --reload  
+```
 
-`   uvicorn app.main:app --reload   `
-
-(Note: To test webhooks locally, you will need a tool like_ [_Ngrok_](https://ngrok.com/) to expose your localhost to the internet).
+(Note: To test webhooks locally, you will need a tool like [Ngrok](https://ngrok.com/) to expose your localhost to the internet).
 
 Developed with curiosity by **javiperezdev**

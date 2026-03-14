@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from app.config import settings
 from app.schemas import WebhookBody
 from services.whatsapp_client import send_message
@@ -24,13 +24,13 @@ Method required for receiving messages from whatsapp, which triggers 'send_messa
 '''
 
 @router.post("/webhook")
-async def post_webhook(body: WebhookBody):
+async def post_webhook(body: WebhookBody, request: Request):
     value = body.entry[0].changes[0].value
     message = value.messages
     if message is not None:
         content = message[0].text.body
         phone_number = message[0].phone_number
-        send_message(phone_number, content)
+        await send_message(phone_number, content, request.app.state.httpx_client) # I need to configure BackGround tasks when implementing ai responses
     else:
         print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}

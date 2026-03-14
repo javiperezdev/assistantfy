@@ -25,3 +25,9 @@ I fixed the bug with message status updates ('read', 'sent', 'delivered'). The f
 
 ### 2026-03-12
 Today, I learned about APIRouters. I ran into some routing issues, but I resolved them by consulting the FastAPI documentation and using AI to troubleshoot the logic. I'm excited to have a clean foundation and a great starting point for AI implementation. Additionally, I wrote the project's README, a necessary step as I intend to make the repository public.
+
+
+### 2026-03-14
+This morning was tough, I struggled a lot with new concepts like the State object and lifespan. However, it was all to make my app more efficient and powerful, which I believe is necessary. I didn't make huge strides in terms of raw lines of code, but I’ve greatly improved my understanding of how FastAPI and this app work. I now have a solid foundation to implement AI tomorrow.
+
+In terms of productivity, I replaced the requests library with httpx for asynchronous support. I initialized httpx.AsyncClient in the main app state, which is much more efficient than initializing it for every message. The cost of keeping it open is minimal. Additionally, I managed to use @asynccontextmanager to initialize the client and tear it down properly when the server shuts down.
