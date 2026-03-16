@@ -2,9 +2,8 @@ from app.config import settings
 import httpx
 
 '''
-post_webhook(), calls send_message() which is a synchronous method because we are using request library
-This method is in charge of sending the whatsapp messages
-I have to fix the responses of the events that my server is receiving that aren't messages
+This method is triggered by generate_response from ai_service module.
+It is in charge of sending the whatsapp messages.
 '''
 
 async def send_message(phone_number : str, content: str, httpx_client: httpx.AsyncClient):
@@ -26,5 +25,5 @@ async def send_message(phone_number : str, content: str, httpx_client: httpx.Asy
     "text": {"body": content}
     }
 
-    response = await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
-    return response
+    await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
+    

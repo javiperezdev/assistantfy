@@ -8,7 +8,7 @@ An AI-powered assistant designed to automate business workflows. It eliminates t
 ## 🎯 Objectives
 The goal of this project is to build a highly scalable, asynchronous backend that can:
 1. Receive messages in real-time via WhatsApp Webhooks. [x]
-2. Process natural language using an LLM (currently DeepSeek) to understand the user's intent. [ ]
+2. Process natural language using an LLM (currently DeepSeek) to understand the user's intent. [x]
 3. Manage a calendar/database to schedule, modify, or cancel appointments automatically. [ ]
 
 📖 **Track my daily progress and technical decisions here:** [PROGRESSLOG.md](./PROGRESSLOG.md)
@@ -22,7 +22,8 @@ The goal of this project is to build a highly scalable, asynchronous backend tha
 **2. Create a virtual environment and install dependencies**
 
 ```bash
-python -m venv venv  source venv/bin/activate  # On Windows use `venv\Scripts\activate`  pip install -r requirements.txt   
+python -m venv venv  source venv/bin/activate  # On Windows use `venv\Scripts\activate`  
+pip install -r requirements.txt   
 ```
 
 **3. Environment Variables**Create a .env file in the root directory:

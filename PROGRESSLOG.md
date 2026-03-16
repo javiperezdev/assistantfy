@@ -31,3 +31,11 @@ Today, I learned about APIRouters. I ran into some routing issues, but I resolve
 This morning was tough, I struggled a lot with new concepts like the State object and lifespan. However, it was all to make my app more efficient and powerful, which I believe is necessary. I didn't make huge strides in terms of raw lines of code, but I’ve greatly improved my understanding of how FastAPI and this app work. I now have a solid foundation to implement AI tomorrow.
 
 In terms of productivity, I replaced the requests library with httpx for asynchronous support. I initialized httpx.AsyncClient in the main app state, which is much more efficient than initializing it for every message. The cost of keeping it open is minimal. Additionally, I managed to use @asynccontextmanager to initialize the client and tear it down properly when the server shuts down.
+
+### 2026-03-15
+I’ve refactored how I’m sharing the httpx_client to follow better practices and avoid future headaches. In doing so, I realized I had a misunderstanding of "lifespan." I previously treated it as a single global entity (server startup/shutdown), but I’ve now correctly implemented it at the request level. This specifically solved an issue that was driving me crazy in routers/whatsapp when calling send_message.
+
+I also integrated the AI implementation into the request lifespan, alongside the httpx client. I’m currently weighing an architectural decision regarding which service should be responsible for sending messages: 'ai_service' or 'whatsapp_service'. I have valid arguments for both, but this is something tomorow would be solved
+
+### 2026-03-16
+Thanks to the hard work I put in yesterday and how quickly I grasped the concepts, implementing the AI was actually quite easy. There’s still a long way to go. I need to refine the parameters like temperature but I’ve officially finished the integration. I’m really excited about how fast I’m learning and making progress!
