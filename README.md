@@ -1,17 +1,62 @@
 # ASSISTANTFY
-An AI-powered assistant designed to automate business workflows. It eliminates the need for manual call handling by leveraging NLP to answer FAQs and manage end-to-end appointment scheduling, significantly increasing operational efficiency.
+
+> **An AI-powered SaaS backend designed to automate business workflows and booking management.**
+
+Assistantfy eliminates the need for manual call handling by leveraging Natural Language Processing (NLP) to answer FAQs, manage end-to-end appointment scheduling, and significantly increase operational efficiency for local service businesses.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/AI-DeepSeek_API-4D4D4E?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Work_In_Progress-FF8C00?style=for-the-badge)
 
-## 🎯 Objectives
-The goal of this project is to build a highly scalable, asynchronous backend that can:
-1. Receive messages in real-time via WhatsApp Webhooks. [x]
-2. Process natural language using an LLM (currently DeepSeek) to understand the user's intent. [x]
-3. Manage a calendar/database to schedule, modify, or cancel appointments automatically. [ ]
+## 🎯 Project Objectives & Roadmap
+The goal of this project is to build a highly scalable, asynchronous backend with a clean architecture:
+- [x] **Real-time Comms:** Receive and send messages in real-time via WhatsApp Cloud API Webhooks.
+- [x] **AI Integration:** Process natural language using DeepSeek's LLM to accurately understand and route user intent.
+- [ ] **Database Management:** Manage a relational database to schedule, modify, or cancel appointments automatically.
+- [ ] **External Sync:** Calendar synchronization (e.g., Google Calendar API).
 
-📖 **Track my daily progress and technical decisions here:** [PROGRESSLOG.md](./PROGRESSLOG.md)
+📖 **Track my daily progress, technical decisions, and blockers here:** [PROGRESSLOG.md](./PROGRESSLOG.md)
+
+---
+
+## 🏗️ Database Architecture (E/R Diagram)
+Designed focusing on data integrity and normalization to provide the AI agent with a robust and efficient source of truth.
+
+```mermaid
+erDiagram
+    CLIENT {
+        int id PK "Auto-increment"
+        string phone_number UK "Unique"
+        string name "Optional"
+    }
+    
+    SERVICE {
+        int id PK "Auto-increment"
+        string name 
+        float price 
+        int duration_minutes 
+    }
+    
+    APPOINTMENT {
+        int id PK "Auto-increment"
+        string google_calendar_id UK "Unique, Optional"
+        int client_id FK "Points to Client.id"
+        datetime start_time 
+        datetime end_time 
+    }
+    
+    APPOINTMENT_SERVICE {
+        int appointment_id PK,FK "Points to Appointment.id"
+        int service_id PK,FK "Points to Service.id"
+    }
+
+    %% Relationships %%
+    CLIENT ||--o{ APPOINTMENT : "has (1:N)"
+    APPOINTMENT ||--|{ APPOINTMENT_SERVICE : "includes (1:N)"
+    SERVICE ||--o{ APPOINTMENT_SERVICE : "is part of (1:N)"
+```
 
 **1. Clone the repository** 
  ```bash
@@ -26,7 +71,8 @@ python -m venv venv  source venv/bin/activate  # On Windows use `venv\Scripts\ac
 pip install -r requirements.txt   
 ```
 
-**3. Environment Variables**Create a .env file in the root directory:
+**3. Environment Variables**
+Create a .env file in the root directory:
 
 ```shell 
 WHATSAPP_TOKEN=your_meta_system_user_token  

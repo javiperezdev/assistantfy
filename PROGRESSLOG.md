@@ -38,4 +38,14 @@ I’ve refactored how I’m sharing the httpx_client to follow better practices 
 I also integrated the AI implementation into the request lifespan, alongside the httpx client. I’m currently weighing an architectural decision regarding which service should be responsible for sending messages: 'ai_service' or 'whatsapp_service'. I have valid arguments for both, but this is something tomorow would be solved
 
 ### 2026-03-16
-Thanks to the hard work I put in yesterday and how quickly I grasped the concepts, implementing the AI was actually quite easy. There’s still a long way to go. I need to refine the parameters like temperature but I’ve officially finished the integration. I’m really excited about how fast I’m learning and making progress!
+Thanks to the hard work I put in yesterday and how quickly I grasp concepts, implementing the AI was actually quite easy. There’s still a long way to go. I need to refine the parameters like temperature but I’ve officially finished the integration. I’m really excited about how fast I’m learning and making progress!
+
+### 2026-03-17 
+Today I haven't coded anything, but I learned about dependency injection. I’ve decided to implement a database to manage clients, appointments, and services. Since I've already designed the E/R, I just need to learn how to implement it in the FastAPI ecosystem using its libraries and tools
+
+### 2026-03-18
+Today I was in a rush. I hope I can continue working over the next few hours. So far, I have learned SQLModel, its syntax, and the logic, and I've implemented the classes that I designed yesterday.
+
+Luckily, I got some time for the project and just configured database.py. I’ve decided to use SQLite for the development stage because it is the easiest to implement, which I think is crucial right now.
+
+I learned how to create the database and the engine, even it was mostly boilerplate code, but I learned what was happening under the hood, which helped me make better decisions. One curious thing I found was that if you don’t import the models in main, the database won't actually create the tables. That’s why I imported all the classes from models, even though the editor is marking them as unused.

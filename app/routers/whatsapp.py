@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks
 from app.config import settings
 from app.schemas import WebhookBody
-from services.ai_service import generate_response
+from app.services.ai_service import generate_response
 
 router = APIRouter()
 
