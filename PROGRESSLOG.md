@@ -49,3 +49,22 @@ Today I was in a rush. I hope I can continue working over the next few hours. So
 Luckily, I got some time for the project and just configured database.py. I’ve decided to use SQLite for the development stage because it is the easiest to implement, which I think is crucial right now.
 
 I learned how to create the database and the engine, even it was mostly boilerplate code, but I learned what was happening under the hood, which helped me make better decisions. One curious thing I found was that if you don’t import the models in main, the database won't actually create the tables. That’s why I imported all the classes from models, even though the editor is marking them as unused.
+
+### 2026-03-19
+To-Do:
+    [x] Create routers to add "clients" as a tool for the AI agent.
+    [ ] Create routers to add "appointments" as a tool for the AI agent.
+
+This morning felt really productive; I’ve grasped the core concepts and made some key architectural decisions. For now, the workflow I’m planning to ensure the best UI/UX chatting experience is as follows:
+
+    The client sends a message.
+    My server receives it and calls search_clients_by_phone_number.
+    It delivers that information (either None or the Client info) to the AI.
+
+Another crucial step is crafting a robust system prompt to minimize hallucinations.
+
+I learned a lot while building the client router. Before implementing the 'add user' functionality, I had the session dependency injected directly into services/client_service. However, I realized this was inefficient; doing the same in my method would have resulted in two separate database hits.
+
+To fix this, I removed the Depends from client_service and search_client_by_phone_number. Now, they simply accept a session parameter passed from the client router, which handles the get_session dependency injection.
+
+Additionally, I learned that raising HTTP status codes directly to LLMs isn't ideal. It’s much more effective to apply defensive programming techniques instead.

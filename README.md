@@ -47,7 +47,7 @@ erDiagram
         datetime end_time 
     }
     
-    APPOINTMENT_SERVICE {
+    SERVICE_APPOINTMENT {
         int appointment_id PK,FK "Points to Appointment.id"
         int service_id PK,FK "Points to Service.id"
     }

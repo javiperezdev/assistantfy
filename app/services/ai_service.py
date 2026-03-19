@@ -6,7 +6,7 @@ async def generate_response(phone_number : str, content: str, httpx_client: http
     response =  await ai_client.chat.completions.create(
         model="deepseek-chat",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant"},
+            {"role": "system", "content": "You are a helpful assistant from a barbershop, your objective is to satisfy clients requests. Don't create texts that have more of 2 lines"},
             {"role": "user", "content": content},
         ],
         stream=False
