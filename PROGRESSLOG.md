@@ -51,12 +51,7 @@ Luckily, I got some time for the project and just configured database.py. I’ve
 I learned how to create the database and the engine, even it was mostly boilerplate code, but I learned what was happening under the hood, which helped me make better decisions. One curious thing I found was that if you don’t import the models in main, the database won't actually create the tables. That’s why I imported all the classes from models, even though the editor is marking them as unused.
 
 ### 2026-03-19
-To-Do:
-    [x] Create routers to add "clients" as a tool for the AI agent.
-    [ ] Create routers to add "appointments" as a tool for the AI agent.
-
 This morning felt really productive; I’ve grasped the core concepts and made some key architectural decisions. For now, the workflow I’m planning to ensure the best UI/UX chatting experience is as follows:
-
     The client sends a message.
     My server receives it and calls search_clients_by_phone_number.
     It delivers that information (either None or the Client info) to the AI.
@@ -68,3 +63,8 @@ I learned a lot while building the client router. Before implementing the 'add u
 To fix this, I removed the Depends from client_service and search_client_by_phone_number. Now, they simply accept a session parameter passed from the client router, which handles the get_session dependency injection.
 
 Additionally, I learned that raising HTTP status codes directly to LLMs isn't ideal. It’s much more effective to apply defensive programming techniques instead.
+
+### 2026-03-25
+Luckily, I got some time to work on my project. I was anxious because the development is becoming difficult; designing a system for AI is a paradigm shift for me. AI requires a specific way of programming that is as mind-blowing as it is beautiful. The only thing I’m not liking is that it is based on probabilities, but that is simply what AI is.
+
+On the productivity side, I developed the logic behind getting empty slots and developed the router and schema for AI tools, for now I just built the one for this functionality (a really impressive thing I learned today). By the way, I am securing my prompts, as they are my business logic.

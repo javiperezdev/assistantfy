@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks
 from app.config import settings
-from app.schemas import WebhookBody
+from app.schemas.schemas_whatsapp import WebhookBody
 from app.services.ai_service import generate_response
 
 router = APIRouter()

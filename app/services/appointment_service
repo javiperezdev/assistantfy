@@ -1,0 +1,52 @@
+from sqlmodel import select, Session
+from datetime import date, datetime, time, timedelta
+from models import Appointment
+from config import BUSINESS_HOURS
+
+'''
+get_available_slots is a tool called by ai, it's responsible of checking if a datetime is available
+and handle the cases of overlap (only for bussiness with one worker at this moment)
+'''
+def get_available_slots(session: Session, requested_date : date):
+    # I think I will change this for the currente time, that they are asking to get an appointment
+    start_of_the_day = datetime.combine(requested_date, time.min)
+    end_of_the_day = datetime.combine(requested_date, time.max)
+
+    statement = select(Appointment).where(Appointment.start_time >= start_of_the_day, 
+                                          Appointment.end_time <= end_of_the_day)
+    appointments = session.exec(statement).all()
+    
+    booked_hours = set()
+    
+    for appointment in appointments:
+        current_appointment = appointment.start_time
+        
+        # Until we don't have any 30 minutes block left
+        while current_appointment < appointment.end_time:
+            booked_hours.add(current_appointment.strftime("%H:%M"))
+            current_appointment += timedelta(minutes=30) # Currently operating in 30 minutes blocks
+            
+    work_hours = get_disponibility(requested_date)
+    available_slots = work_hours - booked_hours
+
+    # Clean the results to only get appointments for the future
+
+    current_datetime = datetime.now() # We have to be careful with in production and change to timezones
+    if current_datetime.date() == requested_date:
+        current_hour = current_datetime.strftime("%H:%M")
+
+        new_slots = set()
+        for hour in available_slots:
+            if hour > current_hour:
+                new_slots.add(hour)
+
+        available_slots = new_slots
+
+    # Return a sorted list is an intelligente way to help AI, which as result will lower costs and improve UX
+    return sorted(list(available_slots))
+
+def get_disponibility(requested_date: date):
+    day = requested_date.isoweekday()
+    return set(BUSINESS_HOURS.get(day, []))
+    
+    
