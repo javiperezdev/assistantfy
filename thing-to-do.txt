@@ -1,0 +1,3 @@
+Change the method available_slots para que funcione con la nueva bd
+Change time.now() for utc
+Fix appointment_router not recoznizing the module

@@ -68,3 +68,16 @@ Additionally, I learned that raising HTTP status codes directly to LLMs isn't id
 Luckily, I got some time to work on my project. I was anxious because the development is becoming difficult; designing a system for AI is a paradigm shift for me. AI requires a specific way of programming that is as mind-blowing as it is beautiful. The only thing I’m not liking is that it is based on probabilities, but that is simply what AI is.
 
 On the productivity side, I developed the logic behind getting empty slots and developed the router and schema for AI tools, for now I just built the one for this functionality (a really impressive thing I learned today). By the way, I am securing my prompts, as they are my business logic.
+
+Later on the day, I had refactor a lot of methods to made code cleaner and implemented the functionality of adding appointments which was hard. Appart from that I had been reading that for call tooling is better to use 'post', which is something I have to research
+
+### 2026-03-26
+Today is the day that things change wildly:
+- We are changing from a single tenant to a multiple tenant, this means:
+    - Migrate database to postgreSQL
+    - Modify services to work for this architecture
+
+Number one priority is creating the postgreSQL database in docker, then all the models to support the new multi-tenant schema and after that refactor the complete app, fix bugs and code that is not working due to the migration from sqlite to postgre. The good news are that for the frontend we will use a low-code open source tool called appSmith, which will lead us finishing the mvp before than expected.
+
+### 2026-03-27
+I am happy because today we advanced a lot, I migrated from sqlite to postgre, database is functional, also I have my software broken because I didn't know what branches were, but I would use them when I solve this problems. By the way I am using the asynchronous driver of postgre, which was a little bit mind blowing at the begining

@@ -1,18 +1,21 @@
-from sqlmodel import create_engine, Session
+from urllib.parse import quote_plus
+from .config import settings
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel
 
-sqlite_file_name = "barbershop.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
+secret_password = quote_plus(settings.postgres_password)
+database_url = f"postgresql+asyncpg://{settings.postgres_user}:{secret_password}@localhost:5432/{settings.postgres_db}"
 # Echo true has to be removed
-engine = create_engine(sqlite_url, echo=True)
+engine = create_async_engine(database_url, echo=True)
 
-'''
-get_session() creates a database session. 
-Using the with statement is the best decision 
-because it automatically closes the connection 
-once the process is finished
-'''
 
-def get_session():
-    with Session(engine) as session:
+async def get_session():
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async with async_session() as session:
         yield session
+
+async def create_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
