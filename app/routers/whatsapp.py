@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks
 from app.config import settings
 from app.schemas.schemas_whatsapp import WebhookBody
-from app.services.ai_service import generate_response
+from app.services.ai_service import generate_response, generate_system_prompt
 
-router = APIRouter()
+router = APIRouter(tags=["Whatsapp"])
 
 '''
 Method required for meta verification, I used an alias to access the 'hub.mode' 
@@ -31,8 +31,9 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
     message = value.messages
     if message is not None:
         content = message[0].text.body
+        system_prompt = await generate_system_prompt()
         phone_number = message[0].phone_number
-        background_tasks.add_task(generate_response, phone_number, content, request.state.httpx_client, request.state.ai_client) # I need to configure BackGround tasks when implementing ai responses
+        background_tasks.add_task(generate_response, phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt)
     else: 
         print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}

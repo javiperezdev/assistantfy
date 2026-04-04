@@ -3,6 +3,7 @@ from datetime import datetime, time
 
 class Business(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    phone_number: str
     name: str 
     timezone: str
 
@@ -31,6 +32,13 @@ class Worker(SQLModel, table=True):
     business_id: int = Field(foreign_key="business.id")
     name: str
 
+class WorkerHours(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    worker_id: int = Field(foreign_key="worker.id")
+    day_of_week: int
+    start_time: time
+    end_time: time
+
 class WorkerService(SQLModel, table=True):
     service_id: int = Field(primary_key=True, foreign_key="service.id")
     worker_id: int = Field(primary_key=True, foreign_key="worker.id")
@@ -52,6 +60,13 @@ class Appointment(SQLModel, table=True):
     worker_id: int = Field(foreign_key="worker.id")
     start_time: datetime
     end_time: datetime
+
+class AdminUser(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    business_id: int = Field(foreign_key="business.id")
+    email: str = Field(unique=True, index=True)
+    password: str 
+    is_active: bool = Field(default=True)
 
 
 

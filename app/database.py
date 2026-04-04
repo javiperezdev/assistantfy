@@ -6,9 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
 secret_password = quote_plus(settings.postgres_password)
-database_url = f"postgresql+asyncpg://{settings.postgres_user}:{secret_password}@localhost:5432/{settings.postgres_db}"
-# Echo true has to be removed
-engine = create_async_engine(database_url, echo=True)
+database_url = f"postgresql+asyncpg://{settings.postgres_user}:{secret_password}@localhost:5433/{settings.postgres_db}"
+engine = create_async_engine(database_url)
 
 
 async def get_session():

@@ -80,4 +80,22 @@ Today is the day that things change wildly:
 Number one priority is creating the postgreSQL database in docker, then all the models to support the new multi-tenant schema and after that refactor the complete app, fix bugs and code that is not working due to the migration from sqlite to postgre. The good news are that for the frontend we will use a low-code open source tool called appSmith, which will lead us finishing the mvp before than expected.
 
 ### 2026-03-27
-I am happy because today we advanced a lot, I migrated from sqlite to postgre, database is functional, also I have my software broken because I didn't know what branches were, but I would use them when I solve this problems. By the way I am using the asynchronous driver of postgre, which was a little bit mind blowing at the begining
+I am happy because today we advanced a lot, I migrated from sqlite to postgre, database is functional, also I have my software broken because I didn't know what branches were, but I would use them when I solve this problems. By the way I am using the asynchronous driver of postgre, which was a little bit mind blowing at the begining.
+
+Later I solved a problem I had with the main not recognizing appointment_service module
+
+### 2026-03-29
+Today I inserted a business to test how the database works, and to develop the get_available_slots method
+
+### 2026-03-30 
+Developing get_available_slots is getting really hard, but I will finish it soon, I just want to make sure I am doing it right and learning on the way. Today's struggle was dealing with the objects that returns the ORM, which obviously aren't the same as when you use raw sql.
+
+### 2026-04-01
+This morning, I built the logic for the get_available_slots, even though the method is robust I realized that what happens if workers have different work hours, or even if they have the same, my method isn't able to handle more than one worker, so I would change the schema to include worker hours and after that I would change the get_available_slots to make possible to include various workers.
+
+During the night, I got some things done such as defining what I really want to do with this method, which is a thing of genious, now time complexity would be O1, it would be fastest and easy to test. I decided to do bulk querys instead of a lot, just as much as workers has a business, and make all the calculations with ram using python and making it easy with sets and dictionaries
+
+### 2026-04-03
+This morning I finished the get_available_slots method and I had been testing it, with data from postgres, It is working really nice even with multiple workers which was my biggest headache durind development, in the future I need to create tests for this method because it's crucial.
+
+The method to add appointments is also working as expected, but I have to add the functionalitie of checking if that appointment exists.
