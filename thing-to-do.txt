@@ -1,7 +1,0 @@
-generate testing for available_slots and overlap situations
-Research how to implement admin_users class
-create frontend with Appsmith
-controlar el token usage por client para evitar ataques
-configurar routers para la nueva estructura de respuesta con json
-configurar schemas de las ai tool
-refinar lo ultimo del router de appointment

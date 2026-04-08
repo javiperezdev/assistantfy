@@ -1,4 +1,3 @@
-from app.schemas.ai_tools import ServiceType
 from app.models import Service
 from sqlmodel import Session, select
 

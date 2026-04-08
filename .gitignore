@@ -1,4 +1,5 @@
 /venv
 .env
 __pycache__
-barbershop.db
+things-to-do.txt
+test_local.py

@@ -6,6 +6,26 @@ from .service_service import get_service_by_id
 from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service, get_all_worker_hours, group_by_workers
 
+async def get_next_available_slots_for_ai(requested_date: date, session: Session, business_id: int, service_id: int, max_days: int = 7):
+    current_date = requested_date
+    
+    for _ in range(max_days):
+        daily_slots = await get_available_slots(current_date, session, business_id, service_id)
+        
+        if daily_slots:
+            return {
+                "status": "success",
+                "date": current_date.isoformat(),
+                "slots": daily_slots[:4]
+            }
+            
+        current_date += timedelta(days=1)
+        
+    return {
+        "status": "error", 
+        "message": f"La agenda está completamente llena desde {requested_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
+        "data": []
+    }
 
 async def create_appointment(business_id: int, client_id: int, service_id: int, worker_id: int, start_time: datetime, end_time: datetime, session: Session):
     appointment = Appointment(business_id=business_id, client_id=client_id, service_id=service_id, worker_id=worker_id, start_time=start_time, end_time=end_time)
@@ -26,15 +46,27 @@ async def create_appointment(business_id: int, client_id: int, service_id: int, 
         )
     
         if not new_slots:
-            return []
+            return {
+                "status": "error",
+                "message": "El hueco solicitado acaba de ser ocupado y ya no quedan más citas libres para ese día. Dile al cliente que lo sientes y pregúntale si quiere buscar en otro día.",
+                "data": []
+            }
 
-        return new_slots
+        return {
+            "status": "error",
+            "message": "Este hueco se ha acabado, ofrece las nuevas opciones en la variable 'data'",
+            "data": new_slots
+        }
 
 
     session.add(appointment)
     await session.commit()
     await session.refresh(appointment)
-    return appointment
+    return {
+        "status": "success",
+        "message": "La cita se ha guardado correctamente",
+        "data": new_slots
+    }
 
 
 async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date):

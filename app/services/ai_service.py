@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from .business_service import get_business_by_id
 from .service_service import get_services_catalog
+from app.schemas.ai_tools import tools
 import httpx
 
 async def generate_system_prompt(session, business_id: int):
@@ -16,7 +17,7 @@ async def generate_system_prompt(session, business_id: int):
     current_date = current_time.strftime("%Y-%m-%d")
     current_hour = current_time.strftime("%H:%M")
 
-    prompt = prompt = f"""
+    prompt =  f"""
     Eres el asistente virtual oficial de '{business.name}'. 
     Tu único objetivo es ayudar a los clientes a reservar citas de forma eficiente y amable.
 
@@ -53,7 +54,7 @@ async def generate_response(phone_number : str, content: str, httpx_client: http
             {"role": "user", "content": content},
         ],
         stream=False,
-        tools=mis_herramientas,
+        tools=tools,
         temperature=0.1
     )
 

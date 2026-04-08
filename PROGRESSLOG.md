@@ -99,3 +99,8 @@ During the night, I got some things done such as defining what I really want to 
 This morning I finished the get_available_slots method and I had been testing it, with data from postgres, It is working really nice even with multiple workers which was my biggest headache durind development, in the future I need to create tests for this method because it's crucial.
 
 The method to add appointments is also working as expected, but I have to add the functionalitie of checking if that appointment exists.
+
+### 2026-04-04
+All routers and functionalities are working as expected, I am really happy about this, I have a lot of ideas to make the system more ai-friendly, which also make it more robust. I haven't done nothing new in this days, I just focused on making everything work well (next time I would use github branches), and making it much more professional. 
+
+One of the functionalities I have developed, is a method that gets the closer dates for a requested date and conects it with the get_availability router so it gives new dates, until it gets to 7 day, if in 7 days it doesn't have any slot. A dict is given to ai, with instructions of what to do

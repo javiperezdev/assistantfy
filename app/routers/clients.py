@@ -5,10 +5,6 @@ from app.database import get_session
 
 router = APIRouter(tags=["Clients"])
 
-'''
-get_client is an ai tool in charge of searching a client by it's phone number.
-'''
-
 @router.get("/client")
 async def get_client(phone_number: str, response: Response, session: Session = Depends(get_session)):
     client =  await search_client_by_phone_number(phone_number, session)
@@ -24,11 +20,6 @@ async def get_client(phone_number: str, response: Response, session: Session = D
         "data": client
     }
 
-'''
-add_client, is a tool that ai uses to add clients to the database.
-If they don't exist, they would be added to the database
-If AI hallucinates and try to add a client that is already added, function would return the client
-'''
  
 @router.post("/client")
 async def add_client(
