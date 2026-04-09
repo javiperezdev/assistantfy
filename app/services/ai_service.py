@@ -1,5 +1,6 @@
 import json
 from openai import AsyncOpenAI
+from sqlmodel import Session
 from .whatsapp_service import send_message
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -32,14 +33,13 @@ async def generate_system_prompt(session, business_id: int):
 
     --- CATÁLOGO DE SERVICIOS ---
     Estos son los únicos servicios que ofrecemos. Cuando uses la herramienta 'get_available_slots_for_ai', DEBES usar el ID exacto que aparece aquí:
-    {get_services_catalog}
+    {await get_services_catalog(business_id, session)}
 
     --- FLUJO DE CONVERSACIÓN OBLIGATORIO ---
     1. Si no sabes qué servicio quiere el cliente, PREGÚNTALE antes de buscar huecos.
     2. Si el cliente no especifica fecha, pregúntale para cuándo lo quiere.
-    3. Una vez sepas el servicio y la fecha, USA LA HERRAMIENTA 'check_availability_tool'.
-    4. Si la herramienta devuelve horas libres, ofrécele un MÁXIMO de 3 opciones espaciadas para no agobiarle por WhatsApp.
-    5. Si la herramienta devuelve una lista vacía, dile que ese día está completo y ofrécele mirar en el día siguiente.
+    3. Si la herramienta devuelve horas libres, ofrécele un MÁXIMO de 3 opciones espaciadas para no agobiarle por WhatsApp.
+    4. Si la herramienta devuelve una lista vacía, dile que ese día está completo y ofrécele mirar en el día siguiente.
 
     --- REGLAS ESTRICTAS ---
     - NUNCA inventes horarios ni asumas que hay hueco sin usar la herramienta.
@@ -56,7 +56,8 @@ async def generate_response(
     httpx_client: httpx.AsyncClient, 
     ai_client: AsyncOpenAI, 
     system_prompt: str, 
-    business_id: int
+    business_id: int,
+    session: Session
 ):
 
     context = WhatsappContext(
@@ -85,9 +86,12 @@ async def generate_response(
         )
 
         message = response.choices[0].message
+        print(message)
         conversation.append(message)
+        print(message.content)
 
         if not message.tool_calls:
+            print("ha entrado aqui")
             await send_message(client_phone_number, message.content, httpx_client)
             return 
 
@@ -95,8 +99,9 @@ async def generate_response(
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
             
-            result = await execute_tool(name, args, context)
+            result = await execute_tool(name, args, context, session)
             
+            # To gather all the context of the reasoning
             conversation.append({
                 "role": "tool",
                 "tool_call_id": tool_call.id,

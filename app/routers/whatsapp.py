@@ -38,7 +38,7 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
         content = message[0].text.body
         system_prompt = await generate_system_prompt(session, business_id)
         client_phone_number = message[0].phone_number
-        background_tasks.add_task(generate_response, client_phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt, business_phone_number)
+        background_tasks.add_task(generate_response, client_phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt, business_id, session)
     else: 
         print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}

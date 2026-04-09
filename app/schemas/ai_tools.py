@@ -14,12 +14,6 @@ class AvailableSlotsAiSchema(BaseModel):
 
 schema_dict = AvailableSlotsAiSchema.model_json_schema()
 
-
-if "business_id" in schema_dict.get("properties", {}):
-    del schema_dict["properties"]["business_id"]
-if "business_id" in schema_dict.get("required", []):
-    schema_dict["required"].remove("business_id")
-
 tool_definition = {
     "type": "function",
     "function": {

@@ -21,8 +21,8 @@ async def get_services_catalog(business_id: int, session: Session):
         
     list_format = "\n".join(services_list)
 
-    if len(services) == 1:
-        unique_service = services[0]
+    if len(services_list) == 1:
+        unique_service = services_list[0]
         return f"""
         - Este negocio ofrece un ÚNICO servicio genérico. 
         - NO le preguntes al cliente qué servicio quiere hacerse. Asume directamente que quieren una cita normal.
