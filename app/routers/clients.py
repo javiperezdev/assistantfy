@@ -5,6 +5,10 @@ from app.database import get_session
 
 router = APIRouter(tags=["Clients"])
 
+'''
+Not using router for the current phase
+'''
+
 @router.get("/client")
 async def get_client(phone_number: str, response: Response, session: Session = Depends(get_session)):
     client =  await search_client_by_phone_number(phone_number, session)

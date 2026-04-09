@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks, Depends
 from app.config import settings
 from app.schemas.schemas_whatsapp import WebhookBody
 from app.services.ai_service import generate_response, generate_system_prompt
+from sqlmodel import Session
+from app.database import get_session
+from app.services.business_service import get_id_by_phone_number
 
 router = APIRouter(tags=["Whatsapp"])
 
@@ -26,14 +29,16 @@ as the generation process exceeds Meta's mandatory response window.
 '''
 
 @router.post("/webhook")
-async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks):
+async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
     value = body.entry[0].changes[0].value
+    business_phone_number = value.metadata.display_phone_number
+    business_id = await get_id_by_phone_number(session, business_phone_number)
     message = value.messages
     if message is not None:
         content = message[0].text.body
-        system_prompt = await generate_system_prompt()
-        phone_number = message[0].phone_number
-        background_tasks.add_task(generate_response, phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt)
+        system_prompt = await generate_system_prompt(session, business_id)
+        client_phone_number = message[0].phone_number
+        background_tasks.add_task(generate_response, client_phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt, business_phone_number)
     else: 
         print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}

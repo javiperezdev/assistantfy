@@ -5,12 +5,14 @@ from app.models import Appointment
 from .service_service import get_service_by_id
 from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service, get_all_worker_hours, group_by_workers
+from app.schemas.ai_tools import AvailableSlotsAiSchema
 
-async def get_next_available_slots_for_ai(requested_date: date, session: Session, business_id: int, service_id: int, max_days: int = 7):
-    current_date = requested_date
+async def get_next_available_slots_for_ai(requested_info: AvailableSlotsAiSchema, session: Session):
+    max_days = 7
+    current_date = requested_info.requested_date
     
     for _ in range(max_days):
-        daily_slots = await get_available_slots(current_date, session, business_id, service_id)
+        daily_slots = await get_available_slots(current_date, session, requested_info.business_id, requested_info.service_id)
         
         if daily_slots:
             return {
@@ -23,7 +25,7 @@ async def get_next_available_slots_for_ai(requested_date: date, session: Session
         
     return {
         "status": "error", 
-        "message": f"La agenda está completamente llena desde {requested_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
+        "message": f"La agenda está completamente llena desde {requested_info.requested_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
         "data": []
     }
 
@@ -133,6 +135,8 @@ def hide_past_slots(result: list, requested_date: date, timezone: ZoneInfo):
 async def get_available_slots(requested_date: date, session: Session, business_id: int, service_id: int):
     # Basic business information
     business = await get_business_by_id(session, business_id)
+    if not business:
+        return {"status" : "error", "message" : "El id introducido no esta adherido a ningún negocio."}
     tz = ZoneInfo(business.timezone)
     service = await get_service_by_id(session, service_id)
     duration = timedelta(minutes=service.duration_minutes)

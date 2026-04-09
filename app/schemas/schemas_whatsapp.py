@@ -12,8 +12,13 @@ class Message(BaseModel):
     phone_number: str = Field(alias="from")
     text: Text | None = None
 
+class Metadata(BaseModel):
+    display_phone_number: str
+    phone_number_id: str
+
 class Value(BaseModel):
     messages: list[Message] | None = None # It can be none, to avoid status calls
+    metadata: Metadata
     statuses: list[dict] | None = None
 
 class Change(BaseModel):
@@ -24,3 +29,10 @@ class Entry(BaseModel):
 
 class WebhookBody(BaseModel):
     entry: list[Entry]
+
+# Object that contains the context 
+
+class WhatsappContext(BaseModel):
+    business_phone_number: str = Field(default=None)
+    client_phone_number: str = Field(default=None)
+    business_id: int = Field(default=None)

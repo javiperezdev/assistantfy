@@ -11,7 +11,6 @@ async def get_service_by_id(session: Session, id: int):
     result = await session.exec(statement)
     return result.first()
 
-# Method created to help the ai, recognize which service is the client
 async def get_services_catalog(business_id: int, session: Session):
     statement = select(Service).where(Service.business_id == business_id)
     services = await session.exec(statement)
@@ -38,3 +37,4 @@ async def get_services_catalog(business_id: int, session: Session):
     - Si no sabes qué servicio quiere el cliente, PREGÚNTALE.
     - Usa el ID numérico del catálogo al llamar a la herramienta.
     """
+
