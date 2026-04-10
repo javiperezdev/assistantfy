@@ -7,7 +7,7 @@ It is in charge of sending the whatsapp messages.
 '''
 
 async def send_message(phone_number : str, content: str, httpx_client: httpx.AsyncClient):
-    meta_url = f"https://graph.facebook.com/v22.0/{settings.phone_number_id}/messages"
+    meta_url = f"https://graph.facebook.com/v25.0/{settings.phone_number_id}/messages"
 
     # meta is strict so the keys should have this name 
 

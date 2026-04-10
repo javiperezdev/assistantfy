@@ -5,8 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
-secret_password = quote_plus(settings.postgres_password)
-database_url = f"postgresql+asyncpg://{settings.postgres_user}:{secret_password}@localhost:5433/{settings.postgres_db}"
+database_url = settings.database_url
 engine = create_async_engine(database_url)
 
 

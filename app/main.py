@@ -8,7 +8,6 @@ import httpx
 # I took the decision of importing models, to have them loaded when starting the server
 from .models import Client, Service, Appointment, Business, BusinessHours, Worker, WorkerService, WorkerHours, AdminUser
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI): 
     httpx_client = httpx.AsyncClient()   

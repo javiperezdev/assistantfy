@@ -36,6 +36,7 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
     message = value.messages
     if message is not None:
         content = message[0].text.body
+        print(f"mensaje de whatsapp: {content}")
         system_prompt = await generate_system_prompt(session, business_id)
         client_phone_number = message[0].phone_number
         background_tasks.add_task(generate_response, client_phone_number, content, request.state.httpx_client, request.state.ai_client, system_prompt, business_id, session)

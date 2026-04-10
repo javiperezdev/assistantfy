@@ -8,13 +8,11 @@ class Settings(BaseSettings):
     deepseek_api_key: str
 
     # database
+    database_url: str
     postgres_user: str 
     postgres_password: str 
     postgres_db: str
 
-    # prompts
-
-    # I have declared extra=ignore just for testing reasons, I should change this before the MVP
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
