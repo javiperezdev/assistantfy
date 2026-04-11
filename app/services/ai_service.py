@@ -83,7 +83,7 @@ async def generate_response(
 
     business_context = WhatsappContext(
         client_phone_number=client_phone_number,
-        negocio_id=business_id
+        business_id=business_id
     )
 
     # Context for the ReAct loop
@@ -124,7 +124,7 @@ async def generate_response(
             args = json.loads(tool_call.function.arguments)
             
             result = await execute_tool(name, args, business_context, session)
-            print("tool result: " + result)
+            print(f"tool result: {result}")
             
             # To gather all the context of the reasoning
             conversation.append({

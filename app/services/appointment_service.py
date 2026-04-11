@@ -7,12 +7,12 @@ from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service, get_all_worker_hours, group_by_workers
 from app.schemas.ai_tools import AvailableSlotsAiSchema
 
-async def get_next_available_slots_for_ai(requested_info: AvailableSlotsAiSchema, session: Session):
+async def get_next_available_slots_for_ai(requested_info: AvailableSlotsAiSchema, business_id: int, session: Session):
     max_days = 7
     current_date = requested_info.requested_date
     
     for _ in range(max_days):
-        daily_slots = await get_available_slots(current_date, session, requested_info.business_id, requested_info.service_id)
+        daily_slots = await get_available_slots(current_date, session, business_id, requested_info.service_id)
         
         if daily_slots:
             return {
@@ -25,7 +25,7 @@ async def get_next_available_slots_for_ai(requested_info: AvailableSlotsAiSchema
         
     return {
         "status": "error", 
-        "message": f"La agenda está completamente llena desde {requested_info.requested_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
+        "message": f"La agenda está completamente llena desde {current_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
         "data": []
     }
 

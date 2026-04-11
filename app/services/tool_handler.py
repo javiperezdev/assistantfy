@@ -7,10 +7,11 @@ from .appointment_service import get_next_available_slots_for_ai
 async def execute_tool(name: str, args: dict, context: WhatsappContext, session: Session):
     try:
         if name == "get_next_available_slots_for_ai":
-            requested_info = AvailableSlotsAiSchema(**args, business_id=context.business_id)
+            requested_info = AvailableSlotsAiSchema(**args)
             
             result = await get_next_available_slots_for_ai(
                 requested_info=requested_info,
+                business_id=context.business_id,
                 session=session
             )
             return result
