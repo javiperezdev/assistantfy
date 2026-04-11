@@ -9,6 +9,7 @@ from .service_service import get_services_catalog
 from app.schemas.ai_tools import tools
 from app.schemas.schemas_whatsapp import WhatsappContext
 from .tool_handler import execute_tool
+from .context_manager import save_context
 import httpx
 
 async def generate_system_prompt(session, business_id: int):
@@ -71,24 +72,24 @@ async def generate_system_prompt(session, business_id: int):
 
 async def generate_response(
     client_phone_number: str, 
-    content: str, 
+    context: list, 
     httpx_client: httpx.AsyncClient, 
     ai_client: AsyncOpenAI, 
     system_prompt: str, 
     business_id: int,
     session: Session
 ):
-    print("se ha llamado a la funcion")
 
-    context = WhatsappContext(
+
+    business_context = WhatsappContext(
         client_phone_number=client_phone_number,
         negocio_id=business_id
     )
 
-    # Currently after new message, ai loses context (Implementing redis could be a good choice)
+    # Context for the ReAct loop
     conversation = [ 
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": content}
+        {"role": "user", "content": json.dumps(context, ensure_ascii=False)}
     ]
     
     max_turns = 5
@@ -107,17 +108,23 @@ async def generate_response(
 
         message = response.choices[0].message
         print(message)
-        conversation.append(message)
 
         if not message.tool_calls:
+            context.append({"role": "assistant", "content": message.content})
+            await save_context(client_phone_number, context)
             await send_message(client_phone_number, message.content, httpx_client)
             return 
+
+        # Currently not saving the ai intention to call the tool which is a problem I have to solve 
+
+        conversation.append(message.model_dump(exclude_none=True))
 
         for tool_call in message.tool_calls:
             name = tool_call.function.name
             args = json.loads(tool_call.function.arguments)
             
-            result = await execute_tool(name, args, context, session)
+            result = await execute_tool(name, args, business_context, session)
+            print("tool result: " + result)
             
             # To gather all the context of the reasoning
             conversation.append({

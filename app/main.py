@@ -4,6 +4,7 @@ from .routers import whatsapp, clients, appointments
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
+from .redis_client import redis_client
 import httpx
 # I took the decision of importing models, to have them loaded when starting the server
 from .models import Client, Service, Appointment, Business, BusinessHours, Worker, WorkerService, WorkerHours, AdminUser
@@ -12,10 +13,12 @@ from .models import Client, Service, Appointment, Business, BusinessHours, Worke
 async def lifespan(app: FastAPI): 
     httpx_client = httpx.AsyncClient()   
     ai_client = AsyncOpenAI(api_key=settings.deepseek_api_key, base_url="https://api.deepseek.com")
+    await redis_client.ping()
     await create_db_and_tables()
     yield {"httpx_client": httpx_client, "ai_client": ai_client}
     await httpx_client.aclose()
     await ai_client.close()
+    await redis_client.aclose()
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)

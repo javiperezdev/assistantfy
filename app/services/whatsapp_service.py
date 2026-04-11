@@ -24,6 +24,12 @@ async def send_message(phone_number : str, content: str, httpx_client: httpx.Asy
     "type": "text",
     "text": {"body": content}
     }
+    
+    print(f"🚀 ENVIANDO A META -> Número: {phone_number}")
+    print(f"📦 PAYLOAD: {payload}")
 
-    await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
+    response = await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
+
+    print(f"🛑 RESPUESTA DE META: HTTP {response.status_code}")
+    print(f"🛑 DETALLE DE META: {response.text}")
     
