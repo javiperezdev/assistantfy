@@ -3,7 +3,7 @@ from sqlmodel import Session
 from app.database import get_session
 from app.services import client_service, service_service, appointment_service
 from datetime import datetime, timedelta
-from app.schemas.ai_tools import AvailableSlotsAiSchema
+from app.schemas.ai_tools import AvailableSlotsSchema
 
 router = APIRouter(tags=["Appointments"])
 
@@ -12,8 +12,8 @@ Not using router for the current phase
 '''
 
 @router.post("/get-availability")
-async def get_availability(response: Response, requested_info: AvailableSlotsAiSchema, business_id: int, session: Session = Depends(get_session)):
-    empty_slots = await appointment_service.get_next_available_slots_for_ai(requested_info, business_id, session)
+async def get_availability(response: Response, requested_info: AvailableSlotsSchema, business_id: int, session: Session = Depends(get_session)):
+    empty_slots = await appointment_service.get_available_slots(requested_info, session, business_id)
     if empty_slots["status"] == "success":
         response.status_code = 200
         return empty_slots

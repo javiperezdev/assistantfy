@@ -1,18 +1,18 @@
 from pydantic import ValidationError 
 from sqlmodel import Session
-from app.schemas.ai_tools import AvailableSlotsAiSchema
+from app.schemas.ai_tools import AvailableSlotsSchema
 from app.schemas.schemas_whatsapp import WhatsappContext
-from .appointment_service import get_next_available_slots_for_ai
+from .appointment_service import get_available_slots
 
 async def execute_tool(name: str, args: dict, context: WhatsappContext, session: Session):
     try:
-        if name == "get_next_available_slots_for_ai":
-            requested_info = AvailableSlotsAiSchema(**args)
+        if name == "get_available_slots":
+            requested_info = AvailableSlotsSchema(**args)
             
-            result = await get_next_available_slots_for_ai(
+            result = await get_available_slots(
                 requested_info=requested_info,
-                business_id=context.business_id,
-                session=session
+                session=session,
+                business_id=context.business_id
             )
             return result
 

@@ -110,17 +110,16 @@ erDiagram
 ## ROADMAP
 
 ### Phase 1: Infrastructure & Performance 
-[ ] Stateful Session Management via Redis: * Implement a high-performance caching layer to maintain conversation persistence across stateless WhatsApp webhooks.
+[x] Stateful Session Management via Redis: Implement a high-performance caching layer to maintain conversation persistence across stateless WhatsApp webhooks.
 
 [ ] Develop a Sliding Window Context Buffer to optimize token consumption and reduce LLM inference costs by managing the message history sent to the model.
 
-[ ] Security & Anti-Abuse Layer: * Integrate Rate Limiting per client ID using Redis to prevent DoS attacks and safeguard API budget from malicious exploitation.
+[ ] Security & Anti-Abuse Layer: Integrate Rate Limiting per client ID using Redis to prevent DoS attacks and safeguard API budget from malicious exploitation.
 
-### Phase 2: Enterprise Control Plane (The SaaS Product)
+### Phase 2: Business Control 
+[ ] Dashboard: Build a centralized interface for business owners to manage service catalogs, staff availability, and real-time appointment calendars.
 
-[ ] Dashboard: * Build a centralized interface for business owners to manage service catalogs, staff availability, and real-time appointment calendars.
-
-[ ] Business Intelligence & Conversion Analytics: * Develop an analytics engine to track key metrics: Message-to-Booking conversion rates, peak inquiry times, and popular services.
+[ ] Business Intelligence & Conversion Analytics: Develop an analytics engine to track key metrics: Message-to-Booking conversion rates, peak inquiry times, and popular services.
 
 
 

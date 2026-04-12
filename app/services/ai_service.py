@@ -34,7 +34,7 @@ async def generate_system_prompt(session, business_id: int):
     </contexto_temporal>
 
     <catalogo_servicios>
-    Estos son los únicos servicios que ofrecemos. Cuando utilices la herramienta 'get_available_slots_for_ai', DEBES extraer y utilizar el ID numérico o de texto exacto que aparece aquí:
+    Estos son los únicos servicios que ofrecemos. Cuando utilices la herramienta 'get_available_slots', DEBES extraer y utilizar el ID numérico o de texto exacto que aparece aquí:
     {await get_services_catalog(business_id, session)}
     </catalogo_servicios>
 
@@ -42,7 +42,7 @@ async def generate_system_prompt(session, business_id: int):
     Sigue estos pasos en orden:
     1. **Asignación Automática de Servicio:** Si el cliente usa sinónimos o pide algo que encaja claramente con un único servicio (ej. "cortar el pelo" = "Corte Básico"), ASÚMELO AUTOMÁTICAMENTE. **NO** le pidas confirmación del servicio. Pasa directamente al paso 2. Solo pregunta si la petición es ambigua.
     2. **Identificar Fecha y Hora:** Si ya sabes el servicio y el día, pregúntale a qué hora le viene bien o qué franja horaria prefiere. (Ej: "¡Genial! ¿Sobre qué hora te vendría bien pasarte este domingo?").
-    3. **Buscar Disponibilidad:** Usa la herramienta 'get_available_slots_for_ai' SOLAMENTE cuando sepas el servicio (ID) y la fecha aproximada.
+    3. **Buscar Disponibilidad:** Usa la herramienta 'get_available_slots' SOLAMENTE cuando sepas el servicio (ID) y la fecha aproximada.
     4. **Ofrecer Opciones:** - Si hay huecos libres, ofrece un MÁXIMO de 3 opciones espaciadas (para no saturar la pantalla de WhatsApp).
     - Si la lista está vacía, informa educadamente que el día está completo y sugiere proactivamente mirar en el día siguiente o buscar otra fecha.
 

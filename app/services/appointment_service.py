@@ -5,9 +5,9 @@ from app.models import Appointment
 from .service_service import get_service_by_id
 from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service, get_all_worker_hours, group_by_workers
-from app.schemas.ai_tools import AvailableSlotsAiSchema
+from app.schemas.ai_tools import AvailableSlotsSchema
 
-async def get_next_available_slots_for_ai(requested_info: AvailableSlotsAiSchema, business_id: int, session: Session):
+async def get_next_available_slots_for_ai(requested_info: AvailableSlotsSchema, business_id: int, session: Session):
     max_days = 7
     current_date = requested_info.requested_date
     
@@ -132,20 +132,20 @@ def hide_past_slots(result: list, requested_date: date, timezone: ZoneInfo):
 
 
 
-async def get_available_slots(requested_date: date, session: Session, business_id: int, service_id: int):
+async def get_available_slots(requested_info: AvailableSlotsSchema, session: Session, business_id: int):
     # Basic business information
     business = await get_business_by_id(session, business_id)
     if not business:
         return {"status" : "error", "message" : "El id introducido no esta adherido a ningún negocio."}
     tz = ZoneInfo(business.timezone)
-    service = await get_service_by_id(session, service_id)
+    service = await get_service_by_id(session, requested_info.service_id)
     duration = timedelta(minutes=service.duration_minutes)
 
     # Query to get all the workers that can perform the requested service
-    worker_ids = await get_workers_by_service(session, service_id)
+    worker_ids = await get_workers_by_service(session, requested_info.service_id)
 
-    all_hours = await get_all_worker_hours(session, worker_ids, requested_date.isoweekday())
-    all_appointments = await get_all_appointments(session, worker_ids, requested_date)
+    all_hours = await get_all_worker_hours(session, worker_ids, requested_info.requested_date.isoweekday())
+    all_appointments = await get_all_appointments(session, worker_ids, requested_info.requested_date)
 
     # We change the raw list of object to: { worker_id: [object_1, object2]} and so on
     hours_by_worker = group_by_workers(all_hours)
@@ -157,11 +157,22 @@ async def get_available_slots(requested_date: date, session: Session, business_i
         worker_hours = hours_by_worker.get(worker_id, [])
         worker_apps = apps_by_worker.get(worker_id, [])
         
-        slots_libres = subtract_sets(worker_hours, worker_apps, duration, requested_date)
+        slots_libres = subtract_sets(worker_hours, worker_apps, duration, requested_info.requested_date)
         total_available_slots.update(slots_libres)     
 
     result = sorted(list(total_available_slots))
-    return hide_past_slots(result, requested_date, tz)
+    refined_result = hide_past_slots(result, requested_info.requested_date, tz)
+
+    if len(refined_result) == 0:
+        return {
+            "status": "error",
+            "message": "No hay huecos disponibles para la fecha solicitada, porfavor ingrese otra fecha"
+        }
+
+    return {
+        "status": "success",
+        "data": refined_result
+    }
 
 
    
