@@ -43,12 +43,12 @@ class WorkerService(SQLModel, table=True):
     service_id: int = Field(primary_key=True, foreign_key="service.id")
     worker_id: int = Field(primary_key=True, foreign_key="worker.id")
 
-'''
-Appointment class has a composite index because in services/appointment_service get_available_slots method
-would be doing searches with them, and a barbershop won't have thousands of inserts daily, so it is really
-cost-effective architectural decision
-'''
 class Appointment(SQLModel, table=True):
+    '''
+    Appointment class has a composite index because in services/appointment_service get_available_slots method
+    would be doing searches with them, and a barbershop won't have thousands of inserts daily, so it is really
+    cost-effective architectural decision
+    '''
     __tablename__ = "appointment"
     __tableargs__ = (
         Index("ix_appointment_dates", "start_datetime", "end_datetime")

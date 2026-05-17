@@ -39,7 +39,7 @@ async def add_client(
         response.status_code = 200
         return {
             "status": "success",
-            "message": "El cliente ya estaba registrado.",
+            "message": "El cliente ya existe.",
             "data": client
         }
     

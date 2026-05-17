@@ -11,6 +11,10 @@ from .models import Client, Service, Appointment, Business, BusinessHours, Worke
 
 @asynccontextmanager
 async def lifespan(app: FastAPI): 
+    """
+    This method "turns on" the database, OpenAI, httpx and redis client when the server is launched,
+    on the other hand before shut down, server "closes the conection" with all this clients.
+    """
     httpx_client = httpx.AsyncClient()   
     ai_client = AsyncOpenAI(api_key=settings.deepseek_api_key, base_url="https://api.deepseek.com")
     await redis_client.ping()

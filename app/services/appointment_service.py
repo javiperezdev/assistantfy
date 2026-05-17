@@ -5,27 +5,26 @@ from app.models import Appointment
 from .service_service import get_service_by_id
 from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service, get_all_worker_hours, group_by_workers
-from app.schemas.ai_tools import AvailableSlotsSchema
 
-async def get_next_available_slots_for_ai(requested_info: AvailableSlotsSchema, business_id: int, session: Session):
+async def get_next_available_slots_for_ai(service_id: int, requested_date: date, business_id: int, session: Session):
     max_days = 7
-    current_date = requested_info.requested_date
+    current_date = requested_date
     
     for _ in range(max_days):
-        daily_slots = await get_available_slots(current_date, session, business_id, requested_info.service_id)
+        daily_slots = await get_available_slots(session, business_id, service_id, current_date)
         
-        if daily_slots:
+        if daily_slots and daily_slots.get("status") == "success":
             return {
                 "status": "success",
                 "date": current_date.isoformat(),
-                "slots": daily_slots[:4]
+                "slots": daily_slots.get("data", [])[:4]
             }
             
         current_date += timedelta(days=1)
         
     return {
         "status": "error", 
-        "message": f"La agenda está completamente llena desde {current_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
+        "message": f"La agenda está completamente llena desde {requested_date} hasta los próximos {max_days} días. Pide disculpas y pregúntale al cliente si quiere que busques a partir de la semana siguiente o en un mes en concreto.",
         "data": []
     }
 
@@ -40,14 +39,14 @@ async def create_appointment(business_id: int, client_id: int, service_id: int, 
     )))).first()
 
     if slot_exists:
-        new_slots = await get_available_slots(
-            start_time.date(),
-            session, 
+        new_slots_response = await get_available_slots(
+            session=session, 
             business_id=business_id, 
-            service_id=service_id
+            service_id=service_id,
+            requested_date=start_time.date()
         )
     
-        if not new_slots:
+        if new_slots_response.get("status") == "error":
             return {
                 "status": "error",
                 "message": "El hueco solicitado acaba de ser ocupado y ya no quedan más citas libres para ese día. Dile al cliente que lo sientes y pregúntale si quiere buscar en otro día.",
@@ -57,7 +56,7 @@ async def create_appointment(business_id: int, client_id: int, service_id: int, 
         return {
             "status": "error",
             "message": "Este hueco se ha acabado, ofrece las nuevas opciones en la variable 'data'",
-            "data": new_slots
+            "data": new_slots_response.get("data", [])
         }
 
 
@@ -67,7 +66,7 @@ async def create_appointment(business_id: int, client_id: int, service_id: int, 
     return {
         "status": "success",
         "message": "La cita se ha guardado correctamente",
-        "data": new_slots
+        "data": []
     }
 
 
@@ -132,20 +131,20 @@ def hide_past_slots(result: list, requested_date: date, timezone: ZoneInfo):
 
 
 
-async def get_available_slots(requested_info: AvailableSlotsSchema, session: Session, business_id: int):
+async def get_available_slots(session: Session, business_id: int, service_id: int, requested_date: date):
     # Basic business information
     business = await get_business_by_id(session, business_id)
     if not business:
         return {"status" : "error", "message" : "El id introducido no esta adherido a ningún negocio."}
     tz = ZoneInfo(business.timezone)
-    service = await get_service_by_id(session, requested_info.service_id)
+    service = await get_service_by_id(session, service_id)
     duration = timedelta(minutes=service.duration_minutes)
 
     # Query to get all the workers that can perform the requested service
-    worker_ids = await get_workers_by_service(session, requested_info.service_id)
+    worker_ids = await get_workers_by_service(session, service_id)
 
-    all_hours = await get_all_worker_hours(session, worker_ids, requested_info.requested_date.isoweekday())
-    all_appointments = await get_all_appointments(session, worker_ids, requested_info.requested_date)
+    all_hours = await get_all_worker_hours(session, worker_ids, requested_date.isoweekday())
+    all_appointments = await get_all_appointments(session, worker_ids, requested_date)
 
     # We change the raw list of object to: { worker_id: [object_1, object2]} and so on
     hours_by_worker = group_by_workers(all_hours)
@@ -157,11 +156,11 @@ async def get_available_slots(requested_info: AvailableSlotsSchema, session: Ses
         worker_hours = hours_by_worker.get(worker_id, [])
         worker_apps = apps_by_worker.get(worker_id, [])
         
-        slots_libres = subtract_sets(worker_hours, worker_apps, duration, requested_info.requested_date)
+        slots_libres = subtract_sets(worker_hours, worker_apps, duration, requested_date)
         total_available_slots.update(slots_libres)     
 
     result = sorted(list(total_available_slots))
-    refined_result = hide_past_slots(result, requested_info.requested_date, tz)
+    refined_result = hide_past_slots(result, requested_date, tz)
 
     if len(refined_result) == 0:
         return {
@@ -173,14 +172,3 @@ async def get_available_slots(requested_info: AvailableSlotsSchema, session: Ses
         "status": "success",
         "data": refined_result
     }
-
-
-   
-
-
-    
-
-
-
-    
-    
