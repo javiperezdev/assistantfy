@@ -6,13 +6,19 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from .business_service import get_business_by_id
 from .service_service import get_services_catalog
-from app.schemas.ai_tools import tools
+from app.schemas.ai_tools import get_all_tool_definitions
 from app.schemas.schemas_whatsapp import WhatsappContext
 from .tool_handler import execute_tool
 from .context_manager import save_context
 import httpx
 
 async def generate_system_prompt(session, business_id: int):
+    """
+    Method in charge of generate the system prompt during runtime, this method is triggered by 
+    routers/whatsapp send_messagge method, which gives AI the business logic for each different 
+    request. As context, it gets business related info and the current time depending of the business tz.
+    """
+
     # Business info from the database
     business = await get_business_by_id(session, business_id)
     tz = ZoneInfo(business.timezone)
@@ -86,7 +92,7 @@ async def generate_response(
         business_id=business_id
     )
 
-    # Context for the ReAct loop
+    # Context for the ReAct loop -> (Reason -> Act)
     conversation = [ 
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": json.dumps(context, ensure_ascii=False)}
@@ -102,7 +108,7 @@ async def generate_response(
             model="deepseek-chat",
             messages=conversation,
             stream=False,
-            tools=tools,
+            tools=get_all_tool_definitions(),
             temperature=0.1
         )
 

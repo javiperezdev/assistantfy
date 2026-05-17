@@ -1,35 +1,29 @@
-from pydantic import ValidationError 
+from pydantic import ValidationError
 from sqlmodel import Session
-from app.schemas.ai_tools import AvailableSlotsSchema
+from app.schemas.ai_tools import get_tool
 from app.schemas.schemas_whatsapp import WhatsappContext
-from .appointment_service import get_available_slots
-
+import app.tools  # Triggers __init__ which activates tools
 async def execute_tool(name: str, args: dict, context: WhatsappContext, session: Session):
-    try:
-        if name == "get_available_slots":
-            requested_info = AvailableSlotsSchema(**args)
-            
-            result = await get_available_slots(
-                requested_info=requested_info,
-                session=session,
-                business_id=context.business_id
-            )
-            return result
-
+    tool = get_tool(name)
+    
+    if not tool:
         return {"status": "error", "message": f"Tool {name} no encontrada"}
 
+    try:
+        result = await tool.run(context=context, session=session, **args)
+        return result
 
-    # Correction to tell ai, that the types of quantity of arguments don't match with defined schema
+    # Catch the exception in case AI hallucinates or gave invalid args
     except ValidationError as e:
         return {
             "status": "error",
-            "message": "Faltan parámetros o tienen el tipo incorrecto. Revisa el esquema de la función.",
-            "detalles": e.errors() 
+            "message": "Faltan parámetros o tienen el tipo incorrecto.",
+            "detalles": e.errors()
         }
-        
+    
     except Exception as e:
         return {
             "status": "error",
-            "message": "Error interno en la base de datos",
+            "message": "Error interno al ejecutar la herramienta.",
             "detalles": str(e)
         }

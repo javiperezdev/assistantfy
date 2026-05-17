@@ -1,12 +1,10 @@
 from app.config import settings 
 import httpx
 
-'''
-This method is triggered by generate_response from ai_service module.
-It is in charge of sending the whatsapp messages.
-'''
-
 async def send_message(phone_number : str, content: str, httpx_client: httpx.AsyncClient):
+    '''
+    Method in charge of sending a message to a phone number
+    '''
     meta_url = f"https://graph.facebook.com/v25.0/{settings.phone_number_id}/messages"
 
     # meta is strict so the keys should have this name 

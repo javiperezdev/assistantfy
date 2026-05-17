@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session
 from app.database import get_session
 from app.services import client_service, service_service, appointment_service
-from datetime import datetime, timedelta
-from app.schemas.ai_tools import AvailableSlotsSchema
+from datetime import date, datetime, timedelta
 
 router = APIRouter(tags=["Appointments"])
 
@@ -12,8 +11,8 @@ Not using router for the current phase
 '''
 
 @router.post("/get-availability")
-async def get_availability(response: Response, requested_info: AvailableSlotsSchema, business_id: int, session: Session = Depends(get_session)):
-    empty_slots = await appointment_service.get_available_slots(requested_info, session, business_id)
+async def get_availability(response: Response, requested_date: date, service_id: int, business_id: int, session: Session = Depends(get_session)):
+    empty_slots = await appointment_service.get_available_slots(requested_date, service_id, session, business_id)
     if empty_slots["status"] == "success":
         response.status_code = 200
         return empty_slots
