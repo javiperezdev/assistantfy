@@ -1,4 +1,4 @@
-# Assistantfy
+ # Assistantfy
 
 ![Logo](assets/logo.png)
 
@@ -25,9 +25,6 @@
 
 Assistantfy empowers local businesses (clinics, salons, etc.) by acting as an affordable, 24/7 autonomous virtual assistant. It moves beyond simple chatbot scripts by utilizing LLMs to manage end-to-end appointment scheduling, FAQ handling, and dynamic conversation management—enabling business owners to focus on operations while the agent handles customer interaction.
 
-### ✍️ Author
-Assistantfy was created by the development team to streamline business-client communications using modern AI agentic patterns.
-
 ---
 
 ## 🚀 Usage
@@ -49,7 +46,7 @@ This flow demonstrates the agent's ability to maintain context in multi-turn con
 
 ---
 
-## 🏗 System Architecture
+## 🏗 DB Architecture
 
 ``` mermaid
 erDiagram
