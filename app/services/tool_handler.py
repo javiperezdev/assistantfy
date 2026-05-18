@@ -2,7 +2,7 @@ from pydantic import ValidationError
 from sqlmodel import Session
 from app.schemas.ai_tools import get_tool
 from app.schemas.schemas_whatsapp import WhatsappContext
-import app.tools  # Triggers __init__ which activates tools
+import app.tools  # Triggers __init__ which loads the tools
 async def execute_tool(name: str, args: dict, context: WhatsappContext, session: Session):
     tool = get_tool(name)
     

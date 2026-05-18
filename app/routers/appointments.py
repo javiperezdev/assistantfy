@@ -12,7 +12,7 @@ Not using router for the current phase
 
 @router.post("/get-availability")
 async def get_availability(response: Response, requested_date: date, service_id: int, business_id: int, session: Session = Depends(get_session)):
-    empty_slots = await appointment_service.get_available_slots(requested_date, service_id, session, business_id)
+    empty_slots = await appointment_service.get_available_slots(session, business_id, service_id, requested_date)
     if empty_slots["status"] == "success":
         response.status_code = 200
         return empty_slots
