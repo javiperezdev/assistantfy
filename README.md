@@ -1,19 +1,55 @@
-# ASSISTANTFY
+# Assistantfy
 
-An enterprise-grade B2B SaaS backend that transforms LLMs into autonomous agents for real-time business operations and booking management.
+![Logo](assets/logo.png)
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+*An enterprise-grade B2B SaaS backend designed to transform LLMs into autonomous agents for real-time business operations and booking management.*
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![DeepSeek API](https://img.shields.io/badge/AI-DeepSeek_API-4D4D4E?style=for-the-badge)
-
-## 📌 The Product Vision
-Assistantfy acts as an affordable, 24/7 virtual assistant for local businesses (clinics, salons, etc.). It eliminates manual call handling by leveraging Natural Language Processing (NLP) to answer FAQs and manage end-to-end appointment scheduling, allowing owners to focus on their core services.
+![Redis](https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
 
 ---
 
-### The Multi-Tenant Database Schema
-To handle multiple businesses securely within the same database, I designed a multi-tenant schema where a `Business` acts as the root entity, ensuring strict data isolation.
+## 🌟 Highlights
+
+*   **🚀 24/7 Autonomous Operations:** Automates end-to-end appointment scheduling and FAQ handling.
+*   **🧠 LLM-Powered:** Moves beyond simple chatbot scripts for natural, dynamic conversation.
+*   **⚡ Extensible Architecture:** Modular tool-calling engine for easy feature additions.
+*   **🔒 Multi-tenant:** Robust database schema ensuring strict data isolation.
+*   **🧠 Stateful Loops:** Uses Redis to maintain context across long-term conversations.
+
+---
+
+## ℹ️ Overview
+
+Assistantfy empowers local businesses (clinics, salons, etc.) by acting as an affordable, 24/7 autonomous virtual assistant. It moves beyond simple chatbot scripts by utilizing LLMs to manage end-to-end appointment scheduling, FAQ handling, and dynamic conversation management—enabling business owners to focus on operations while the agent handles customer interaction.
+
+### ✍️ Author
+Assistantfy was created by the development team to streamline business-client communications using modern AI agentic patterns.
+
+---
+
+## 🚀 Usage
+
+Assistantfy is designed to integrate into your business messaging flows.
+
+### Example Interaction Flow
+Here is a sample interaction demonstrating how Assistantfy autonomously handles an appointment booking:
+
+![Example Interaction](assets/ejemplo1.png)
+
+1. **User Request**: A customer sends a WhatsApp message asking for a haircut appointment for today.
+2. **Autonomous Processing**: Assistantfy receives the webhook, identifies the intent, and automatically calls the `get_available_slots` tool to query the backend database for current availability.
+3. **Agent Response**: The agent replies dynamically with the available time slots (e.g., 17:00 and 17:30) for the requested service.
+4. **Client Selection**: The customer confirms their preferred time (17:30).
+5. **Confirmation**: Assistantfy confirms the selected slot and proceeds to ask for the client's name to finalize the booking.
+
+This flow demonstrates the agent's ability to maintain context in multi-turn conversations, perform real-time database operations, and execute tool-calling autonomously.
+
+---
+
+## 🏗 System Architecture
 
 ``` mermaid
 erDiagram
@@ -107,33 +143,63 @@ erDiagram
 
     WORKER ||--o{ WORKER_HOURS : "works"
 ```
-## ROADMAP
 
-### Phase 1: Infrastructure & Performance 
-[x] Stateful Session Management via Redis: Implement a high-performance caching layer to maintain conversation persistence across stateless WhatsApp webhooks.
+---
 
-[ ] Develop a Sliding Window Context Buffer to optimize token consumption and reduce LLM inference costs by managing the message history sent to the model.
-
-[ ] Security & Anti-Abuse Layer: Integrate Rate Limiting per client ID using Redis to prevent DoS attacks and safeguard API budget from malicious exploitation.
-
-### Phase 2: Business Control 
-[ ] Dashboard: Build a centralized interface for business owners to manage service catalogs, staff availability, and real-time appointment calendars.
-
-[ ] Business Intelligence & Conversion Analytics: Develop an analytics engine to track key metrics: Message-to-Booking conversion rates, peak inquiry times, and popular services.
+## ⬇️ Installation
 
 
+### Prerequisites
+*   Python 3.12+
+*   PostgreSQL
+*   Redis
+*   Docker & Docker Compose (optional, for infrastructure)
+
+### Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/assistantfy.git
+   cd assistantfy
+   ```
+
+2. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. Create a `.env` file in the root directory and configure the following required environment variables:
+   ```env
+   # API & Integration
+   VERIFICATION_TOKEN=your_verification_token
+   WHATSAPP_TOKEN=your_whatsapp_token
+   PHONE_NUMBER_ID=your_phone_number_id
+   DEEPSEEK_API_KEY=your_deepseek_api_key
+
+   # Database & Infrastructure
+   DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+   POSTGRES_USER=user
+   POSTGRES_PASSWORD=password
+   POSTGRES_DB=dbname
+   REDIS_URL=redis://localhost:6379/0
+   ```
+
+### Execution
+If you have Docker installed, you can start the infrastructure (Postgres/Redis) with:
+```bash
+docker-compose up -d
+```
+
+Then, start the FastAPI application:
+```bash
+uvicorn app.main:app --reload
+```
+The API will be available at `http://localhost:8000`.
 
 
+---
 
+## 💬 Community & Contributing
 
-
-
-
-
-
-
-
-
-
-
-
+We welcome contributions! If you have suggestions, found a bug, or would like to propose a new feature, please open an issue or start a Discussion in the GitHub repository.
