@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Any
-from sqlmodel import Session
+from sqlmodel import Session, select
+from app.models import Worker, WorkerService
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment_service import create_appointment, get_available_slots
 from app.services.client_service import search_client_by_phone_number, create_client
@@ -40,6 +41,26 @@ class BookAppointmentTool(BaseTool):
         if not service:
             return {"status": "error", "message": "El servicio no existe."}
             
+        # 2.1 Verify business ownership and associations
+        if service.business_id != context.business_id:
+            return {"status": "error", "message": "El servicio no pertenece al negocio."}
+        
+        worker_statement = select(Worker).where(Worker.id == validated_args.worker_id)
+        worker = (await session.exec(worker_statement)).first()
+        if not worker:
+            return {"status": "error", "message": "El trabajador no existe."}
+            
+        if worker.business_id != context.business_id:
+            return {"status": "error", "message": "El trabajador no pertenece al negocio."}
+            
+        worker_service_statement = select(WorkerService).where(
+            WorkerService.worker_id == validated_args.worker_id,
+            WorkerService.service_id == validated_args.service_id
+        )
+        worker_service = (await session.exec(worker_service_statement)).first()
+        if not worker_service:
+            return {"status": "error", "message": "El trabajador no puede realizar este servicio."}
+
         end_time = validated_args.start_time + timedelta(minutes=service.duration_minutes)
         
         # 3. Create appointment
