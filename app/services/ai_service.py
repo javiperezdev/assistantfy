@@ -9,7 +9,7 @@ from .service_service import get_services_catalog
 from app.schemas.ai_tools import get_all_tool_definitions
 from app.schemas.schemas_whatsapp import WhatsappContext
 from .tool_handler import execute_tool
-from .context_manager import save_context
+from .context_manager import add_to_context
 import httpx
 
 async def generate_system_prompt(session, business_id: int):
@@ -116,8 +116,9 @@ async def generate_response(
         print(message)
 
         if not message.tool_calls:
-            context.append({"role": "assistant", "content": message.content})
-            await save_context(client_phone_number, context)
+            new_message = {"role": "assistant", "content": message.content}
+            context.append(new_message)
+            await add_to_context(client_phone_number, new_message)
             await send_message(client_phone_number, message.content, httpx_client)
             return 
 

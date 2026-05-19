@@ -48,7 +48,7 @@ This flow demonstrates the agent's ability to maintain context in multi-turn con
 
 ## 🏗 DB Architecture
 
-``` mermaid
+```mermaid
 erDiagram
     %% CORE TENANT & AUTHENTICATION
     BUSINESS {
