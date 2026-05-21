@@ -1,4 +1,5 @@
 from sqlmodel import select, Session
+from sqlalchemy.exc import IntegrityError
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from app.models import Appointment
@@ -60,14 +61,28 @@ async def create_appointment(business_id: int, client_id: int, service_id: int, 
         }
 
 
-    session.add(appointment)
-    await session.commit()
-    await session.refresh(appointment)
-    return {
-        "status": "success",
-        "message": "La cita se ha guardado correctamente",
-        "data": []
-    }
+    try:
+        session.add(appointment)
+        await session.commit()
+        await session.refresh(appointment)
+        return {
+            "status": "success",
+            "message": "La cita se ha guardado correctamente",
+            "data": []
+        }
+    except IntegrityError:
+        await session.rollback()
+        new_slots_response = await get_available_slots(
+            session=session, 
+            business_id=business_id, 
+            service_id=service_id,
+            requested_date=start_time.date()
+        )
+        return {
+            "status": "error",
+            "message": "El hueco solicitado acaba de ser ocupado. Aquí tienes nuevas opciones.",
+            "data": new_slots_response.get("data", [])
+        }
 
 
 async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date):

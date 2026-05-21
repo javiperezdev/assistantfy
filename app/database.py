@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from .config import settings
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -16,3 +17,19 @@ async def get_session():
 async def create_db_and_tables():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+        # Create btree_gist extension and the exclusion constraint
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS btree_gist;"))
+        await conn.execute(text("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'exclude_overlapping_appointments') THEN
+                    ALTER TABLE appointment 
+                    ADD CONSTRAINT exclude_overlapping_appointments
+                    EXCLUDE USING gist (
+                        worker_id WITH =, 
+                        tsrange(start_time, end_time) WITH &&
+                    );
+                END IF;
+            END
+            $$;
+        """))
