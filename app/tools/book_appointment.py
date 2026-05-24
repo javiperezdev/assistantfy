@@ -5,13 +5,11 @@ from sqlmodel import Session
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.commands import create_appointment_workflow
 from app.services.client_service import search_client_by_phone_number, create_client
-from app.services.service_service import get_service_by_id
-from app.services.worker_service import get_workers_by_service
-
+from app.services.worker_service import get_first_available_worker
+from app.services.service_service import get_time_from_service
 
 class BookAppointmentSchema(BaseModel):
     service_id: int = Field(description="ID númerico del servicio a reservar")
-    worker_id: int = Field(description="ID del trabajador seleccionado")
     start_time: datetime = Field(description="Fecha y hora de inicio de la cita en formato ISO 8601 (AAAA-MM-DDTHH:MM:SS)")
 
 class BookAppointmentTool(BaseTool):
@@ -21,7 +19,9 @@ class BookAppointmentTool(BaseTool):
 
     async def run(self, context: Any, session: Session, **kwargs) -> Any:
         validated_args = self.args_schema(**kwargs)
-        
+        duration_minutes = await get_time_from_service(validated_args.service_id, session)
+        w_id = await get_first_available_worker(session, validated_args.service_id, validated_args.start_time, duration_minutes)
+
         # 1. Resolve client_id
         client = await search_client_by_phone_number(context.client_phone_number, session)
         if not client:
@@ -42,7 +42,7 @@ class BookAppointmentTool(BaseTool):
             business_id=context.business_id,
             client_id=client.id,
             service_id=validated_args.service_id,
-            worker_id=validated_args.worker_id,
+            worker_id= w_id,
             start_time=validated_args.start_time
         )
 
