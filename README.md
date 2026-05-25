@@ -36,13 +36,13 @@ Here is a sample interaction demonstrating how Assistantfy autonomously handles 
 
 ![Example Interaction](assets/ejemplo1.png)
 
-1. **User Request**: A customer sends a WhatsApp message asking for a haircut appointment for today.
-2. **Autonomous Processing**: Assistantfy receives the webhook, identifies the intent, and automatically calls the `get_available_slots` tool to query the backend database for current availability.
-3. **Agent Response**: The agent replies dynamically with the available time slots (e.g., 17:00 and 17:30) for the requested service.
-4. **Client Selection**: The customer confirms their preferred time (17:30).
-5. **Confirmation**: Assistantfy confirms the selected slot and proceeds to ask for the client's name to finalize the booking.
+1. **Initial Request**: The customer initiates a booking request for a haircut on a specific day.
+2. **Autonomous Intent Management**: Assistantfy greets the customer and intelligently prompts for a preferred timeframe (morning/afternoon) to narrow down availability.
+3. **Tool-Assisted Querying**: Upon receiving the customer's preference ("afternoon"), the agent automatically invokes `get_available_slots` to fetch accurate, real-time availability from the database.
+4. **Conversational Refinement**: The agent presents available slots and successfully captures the customer's specific time selection.
+5. **Finalization & Booking**: After obtaining the customer's name, the agent utilizes the `book_appointment` tool to commit the booking to the database and provides a final confirmation to the user.
 
-This flow demonstrates the agent's ability to maintain context in multi-turn conversations, perform real-time database operations, and execute tool-calling autonomously.
+This multi-turn conversation demonstrates the agent's ability to maintain context, perform real-time database operations via tool-calling, and manage the full booking lifecycle autonomously.
 
 ---
 
