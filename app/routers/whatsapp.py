@@ -32,25 +32,31 @@ as the generation process exceeds Meta's mandatory response window.
 
 @router.post("/webhook")
 async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
-    print(body)
-    value = body.entry[0].changes[0].value
-    business_phone_number = value.metadata.display_phone_number
-    business_id = await get_id_by_phone_number(session, business_phone_number)
-    message = value.messages
-    if message is not None:
-        content = message[0].text.body
+    client_phone_number = None
+    try:
+        print(body)
+        value = body.entry[0].changes[0].value
+        business_phone_number = value.metadata.display_phone_number
+        business_id = await get_id_by_phone_number(session, business_phone_number)
+        message = value.messages
+        if message is not None:
+            content = message[0].text.body
 
-        # To avoid long messages, and possible attacks
-        if len(content) > 160:
-            error_message = "El mensaje que has enviado es demasiado largo, porfavor intentalo de nuevo con uno más corto!"
+            # To avoid long messages, and possible attacks
+            if len(content) > 160:
+                error_message = "El mensaje que has enviado es demasiado largo, porfavor intentalo de nuevo con uno más corto!"
+                await send_message(client_phone_number, error_message, request.state.httpx_client)
+
+            system_prompt = await generate_system_prompt(session, business_id)
+            client_phone_number = message[0].phone_number
+
+            context = await get_context(client_phone_number)
+            context.append({"role": "user", "content": content})
+            background_tasks.add_task(generate_response, client_phone_number, context, request.state.httpx_client, request.state.ai_client, system_prompt, business_id, session)
+        else: 
+            print(f"event: {value.statuses[0].get("status")}")
+    except Exception as e:
+        if client_phone_number:
+            error_message = "Lo sentimos, el servicio no está disponible en este momento."
             await send_message(client_phone_number, error_message, request.state.httpx_client)
-
-        system_prompt = await generate_system_prompt(session, business_id)
-        client_phone_number = message[0].phone_number
-
-        context = await get_context(client_phone_number)
-        context.append({"role": "user", "content": content})
-        background_tasks.add_task(generate_response, client_phone_number, context, request.state.httpx_client, request.state.ai_client, system_prompt, business_id, session)
-    else: 
-        print(f"event: {value.statuses[0].get("status")}")
     return {"status": "ok"}
