@@ -1,8 +1,21 @@
 from sqlmodel import select, Session
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
-from app.models import Appointment
+from app.models import Appointment, Client
 from app.services.worker_service import get_all_worker_hours, group_by_workers
+
+async def get_client_appointments(session: Session, client_phone_number: str):
+    """
+    Obtiene las citas futuras de un cliente dado su número de teléfono.
+    """
+    statement = (
+        select(Appointment)
+        .join(Client)
+        .where(Client.phone_number == client_phone_number)
+        .where(Appointment.start_time >= datetime.now())
+    )
+    result = await session.exec(statement)
+    return result.all()
 
 async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date):
     start_of_day = datetime.combine(requested_date, time.min)
