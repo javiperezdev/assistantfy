@@ -6,7 +6,7 @@ from app.services.worker_service import get_all_worker_hours, group_by_workers
 
 async def get_client_appointments(session: Session, client_phone_number: str):
     """
-    Obtiene las citas futuras de un cliente dado su número de teléfono.
+    Get all the future appointments from a client
     """
     statement = (
         select(Appointment)
