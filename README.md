@@ -31,18 +31,13 @@ Assistantfy empowers local businesses (clinics, salons, etc.) by acting as an af
 
 Assistantfy is designed to integrate into your business messaging flows.
 
-### Example Interaction Flow
-Here is a sample interaction demonstrating how Assistantfy autonomously handles an appointment booking:
+### Examples of Interaction Flow
 
-![Example Interaction](assets/ejemplo1.png)
+#### Checking for availability and booking
+![Example of booking](assets/DELETE.png)
 
-1. **Initial Request**: The customer initiates a booking request for a haircut on a specific day.
-2. **Autonomous Intent Management**: Assistantfy greets the customer and intelligently prompts for a preferred timeframe (morning/afternoon) to narrow down availability.
-3. **Tool-Assisted Querying**: Upon receiving the customer's preference ("afternoon"), the agent automatically invokes `get_available_slots` to fetch accurate, real-time availability from the database.
-4. **Conversational Refinement**: The agent presents available slots and successfully captures the customer's specific time selection.
-5. **Finalization & Booking**: After obtaining the customer's name, the agent utilizes the `book_appointment` tool to commit the booking to the database and provides a final confirmation to the user.
-
-This multi-turn conversation demonstrates the agent's ability to maintain context, perform real-time database operations via tool-calling, and manage the full booking lifecycle autonomously.
+#### Cancel an appointment
+![Example of booking](assets/GetAVandBookAPP.png)
 
 ---
 

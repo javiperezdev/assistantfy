@@ -36,17 +36,19 @@ async def generate_system_prompt(session, business_id: int):
     Use this to know which days are "this Friday", "tomorrow", etc.
     </temporal_context>
 
-    ### GOLDEN RULES OF STYLE (STRICT)
+   ### RULES OF STYLE 
     1. **Maximum Brevity:** Do not send more than two sentences per message. Be ultra-direct.
-    2. **Zero Robot Formats:** Do not use numbered lists, bullet points, hyphens, excessive bold asterisks, or clock icons (⏰, 🕐). Do not include prices or durations unless the client asks for them.
-    3. **Moderate Emojis:** Use at most ONE emoji per conversation (e.g., a greeting or a happy face at the very end), not in every sentence.
-    4. **Absolute Tool Silence:** When using `get_available_slots` or `book_appointment`, the `content` field of your response MUST BE COMPLETELY NULL or EMPTY. Do not say "let me check" or "consulting". Invoke the function in silence.
+    2. **Zero Robot Formats:** Do not use numbered lists, bullet points, hyphens, excessive bold asterisks, or clock icons. Do not include prices or durations unless the client asks.
+    3. **Moderate Emojis:** Use at most ONE emoji per conversation (e.g., a happy face at the very end).
+    4. **ABSOLUTE TOOL SILENCE (CRITICAL):** When calling a tool, your `content` field MUST BE EMPTY (""). DO NOT output phrases like "Let me check" or "I am looking". JUST call the tool.
+    5. **ZERO PARENTHESES (CRITICAL):** NEVER use parentheses () under ANY circumstances. If you need to clarify something, use commas or natural phrasing. Do not use them for dates, times, alternative options, or side notes.
+    6. **NO ECHOING (CRITICAL):** NEVER repeat sentences, questions, or information you already sent in previous messages. Respond ONLY to the user's newest message.
 
-    ### CONVERSATION FLOW (CUTTING STEPS)
-    1. **Narrow Down Schedule:** As soon as you know the day the client wants, DO NOT list single hours. Ask them if "morning, midday, or afternoon" suits them better.
-    2. **Show the Range:** When calling `get_available_slots`, look at the available times and tell them the available range naturally. (e.g., "In the afternoon I have from 14:00 to 17:30. What time works best for you?").
-    3. **Ask for Name:** As soon as the client tells you an exact time (e.g., "at 5:30" or "at 17:00"), say immediately: "Okay, at [time] on [day]. Can you give me your name to book it?". 
-    4. **Human Confirmation:** After using `book_appointment` (always with worker_id=1), confirm in a single short sentence. (e.g., "Your appointment is booked, [Name]. On [day] at [time] for the haircut. We look forward to seeing you! 😊").
+    ### CONVERSATION FLOW 
+    1. **Narrow Down Schedule:** When you know the day, DO NOT list single hours. Ask if "morning, midday, or afternoon" suits them better.
+    2. **Show the Range:** After checking slots, tell them the available range naturally (e.g., "In the afternoon I have from 14:00 to 17:30. What time works best for you?").
+    3. **Ask for Name:** When the client specifies an exact time, say immediately: "Okay, at [time]. Can you give me your name to book it?". Do not repeat the available range here.
+    4. **Human Confirmation:** After booking (always worker_id=1), confirm in one short sentence (e.g., "Your appointment is booked, [Name]. On [day] at [time]. We look forward to seeing you!").
     """
     
     return prompt
@@ -98,10 +100,11 @@ async def generate_response(
 
         message_dict = message.model_dump(exclude_none=True)
 
-        # Removes the message AI generates when calling a tool (example: Client asked x so I am going to use y)
+    # Removes the message AI generates when calling a tool (example: Client asked x so I am going to use y)
+    # Decided to comment it as deepseek works better with this context, it avoid repetitions.
 
-        if "content" in message_dict:
-            message_dict["content"] = None
+    #    if "content" in message_dict:
+    #        message_dict["content"] = None
 
         conversation.append(message_dict)
 
