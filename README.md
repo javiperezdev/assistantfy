@@ -34,10 +34,10 @@ Assistantfy is designed to integrate into your business messaging flows.
 ### Examples of Interaction Flow
 
 #### Checking for availability and booking
-![Example of booking](assets/DELETE.png)
-
-#### Cancel an appointment
 ![Example of booking](assets/GetAVandBookAPP.png)
+
+#### Cancelling an appointment
+![Example of cancelling](assets/DELETE.png)
 
 ---
 
