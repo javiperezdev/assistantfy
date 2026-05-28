@@ -21,12 +21,12 @@ async def get_availability(response: Response, requested_date: date, service_id:
     business = await get_business_by_id(session, business_id)
     if not business:
         response.status_code = 404
-        return {"status": "error", "message": "Negocio no encontrado"}
+        return {"status": "error", "message": "Business not found"}
     
     service = await get_service_by_id(session, service_id)
     if not service:
         response.status_code = 404
-        return {"status": "error", "message": "Servicio no encontrado"}
+        return {"status": "error", "message": "Service not found"}
 
     worker_ids = await get_workers_by_service(session, service_id)
     
@@ -42,7 +42,7 @@ async def get_availability(response: Response, requested_date: date, service_id:
     # but the tool now returns the list directly.
     if not empty_slots:
         response.status_code = 404
-        return {"status": "error", "message": "No hay huecos disponibles"}
+        return {"status": "error", "message": "No slots available"}
 
     response.status_code = 200
     return {"status": "success", "data": empty_slots}

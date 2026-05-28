@@ -16,7 +16,7 @@ async def get_client(phone_number: str, response: Response, session: Session = D
         response.status_code = 404 
         return {
             "status": "error", 
-            "message": f"El cliente con teléfono {phone_number} no existe en la base de datos."
+            "message": f"The client with phone number {phone_number} does not exist in the database."
         }
 
     return {
@@ -39,7 +39,7 @@ async def add_client(
         response.status_code = 200
         return {
             "status": "success",
-            "message": "El cliente ya existe.",
+            "message": "The client already exists.",
             "data": client
         }
     
@@ -48,6 +48,6 @@ async def add_client(
     response.status_code = 201
     return {
         "status": "success",
-        "message": f"Cliente {name} registrado con éxito.",
+        "message": f"Client {name} registered successfully.",
         "data": new_client
     }

@@ -7,7 +7,7 @@ async def execute_tool(name: str, args: dict, context: WhatsappContext, session:
     tool = get_tool(name)
     
     if not tool:
-        return {"status": "error", "message": f"Tool {name} no encontrada"}
+        return {"status": "error", "message": f"Tool {name} not found"}
 
     try:
         result = await tool.run(context=context, session=session, **args)
@@ -17,13 +17,13 @@ async def execute_tool(name: str, args: dict, context: WhatsappContext, session:
     except ValidationError as e:
         return {
             "status": "error",
-            "message": "Faltan parámetros o tienen el tipo incorrecto.",
+            "message": "Missing parameters or incorrect type.",
             "detalles": e.errors()
         }
     
     except Exception as e:
         return {
             "status": "error",
-            "message": "Error interno al ejecutar la herramienta.",
+            "message": "Internal error executing the tool.",
             "detalles": str(e)
         }

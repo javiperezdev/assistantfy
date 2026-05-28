@@ -9,7 +9,7 @@ async def validate_appointment_creation(session: Session, business_id: int, serv
     # 0. Validate time
     business = await get_business_by_id(session, business_id)
     if not business:
-        return {"status": "error", "message": "El negocio no existe."}
+        return {"status": "error", "message": "The business does not exist."}
     
     tz = ZoneInfo(business.timezone)
     # Ensure start_time is timezone-aware
@@ -17,24 +17,24 @@ async def validate_appointment_creation(session: Session, business_id: int, serv
         start_time = start_time.replace(tzinfo=tz)
         
     if start_time < datetime.now(tz):
-        return {"status": "error", "message": "No puedes reservar una cita en el pasado."}
+        return {"status": "error", "message": "You cannot book an appointment in the past."}
 
     # 1. Validate Service
     service = await get_service_by_id(session, service_id)
     if not service:
-        return {"status": "error", "message": "El servicio no existe."}
+        return {"status": "error", "message": "The service does not exist."}
     
     if service.business_id != business_id:
-        return {"status": "error", "message": "El servicio no pertenece al negocio."}
+        return {"status": "error", "message": "The service does not belong to the business."}
 
     # 2. Validate Worker
     worker_statement = select(Worker).where(Worker.id == worker_id)
     worker = (await session.exec(worker_statement)).first()
     if not worker:
-        return {"status": "error", "message": "El trabajador no existe."}
+        return {"status": "error", "message": "The worker does not exist."}
         
     if worker.business_id != business_id:
-        return {"status": "error", "message": "El trabajador no pertenece al negocio."}
+        return {"status": "error", "message": "The worker does not belong to the business."}
 
     # 3. Validate Worker-Service Association
     worker_service_statement = select(WorkerService).where(
@@ -43,6 +43,6 @@ async def validate_appointment_creation(session: Session, business_id: int, serv
     )
     worker_service = (await session.exec(worker_service_statement)).first()
     if not worker_service:
-        return {"status": "error", "message": "El trabajador no puede realizar este servicio."}
+        return {"status": "error", "message": "The worker cannot perform this service."}
 
     return {"status": "success", "service": service}

@@ -24,17 +24,17 @@ async def get_services_catalog(business_id: int, session: Session):
     if len(services_list) == 1:
         unique_service = services_list[0]
         return f"""
-        - Este negocio ofrece un ÚNICO servicio genérico. 
-        - NO le preguntes al cliente qué servicio quiere hacerse. Asume directamente que quieren una cita normal.
-        - Cuando uses la herramienta 'check_availability_tool', pasa SIEMPRE el service_id: {unique_service.id}.
+        - This business offers a SINGLE generic service.
+        - DO NOT ask the client what service they want. Assume directly that they want a normal appointment.
+        - When using the 'check_availability_tool', ALWAYS pass the service_id: {unique_service.id}.
         """
     
     return f"""
-    - Este es nuestro catálogo de servicios:
-    <catalogo_servicios>
+    - This is our service catalog:
+    <service_catalog>
     {list_format}
-    </catalogo_servicios>
-    - Si no sabes qué servicio quiere el cliente, PREGÚNTALE.
-    - Usa el ID numérico del catálogo al llamar a la herramienta.
+    </service_catalog>
+    - If you don't know what service the client wants, ASK THEM.
+    - Use the numerical ID from the catalog when calling the tool.
     """
 
