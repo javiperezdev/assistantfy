@@ -5,11 +5,11 @@ from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.commands import cancel_appointment_workflow
 
 class CancelAppointmentSchema(BaseModel):
-    appointment_id: int = Field(description="ID de la cita a cancelar")
+    appointment_id: int = Field(description="ID of the appointment to cancel")
 
 class CancelAppointmentTool(BaseTool):
     name: str = "cancel_appointment"
-    description: str = "Cancela una cita específica del cliente. Úsala solo cuando el cliente haya confirmado qué cita desea cancelar."
+    description: str = "Cancels a specific client appointment. Use it only when the client has confirmed which appointment they wish to cancel."
     args_schema: type[BaseModel] = CancelAppointmentSchema
 
     async def run(self, context: Any, session: Session, **kwargs) -> Any:

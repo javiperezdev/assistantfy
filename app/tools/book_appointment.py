@@ -9,12 +9,12 @@ from app.services.worker_service import get_first_available_worker
 from app.services.service_service import get_time_from_service
 
 class BookAppointmentSchema(BaseModel):
-    service_id: int = Field(description="ID númerico del servicio a reservar")
-    start_time: datetime = Field(description="Fecha y hora de inicio de la cita en formato ISO 8601 (AAAA-MM-DDTHH:MM:SS)")
+    service_id: int = Field(description="Numeric ID of the service to book")
+    start_time: datetime = Field(description="Start date and time of the appointment in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)")
 
 class BookAppointmentTool(BaseTool):
     name: str = "book_appointment"
-    description: str = "Reserva una cita con un trabajador y un servicio específicos. Úsala cuando el cliente haya confirmado la fecha, hora, trabajador y servicio."
+    description: str = "Book an appointment with a specific worker and service. Use it when the client has confirmed the date, time, worker, and service."
     args_schema: type[BaseModel] = BookAppointmentSchema
 
     async def run(self, context: Any, session: Session, **kwargs) -> Any:
@@ -34,7 +34,7 @@ class BookAppointmentTool(BaseTool):
                     session=session
                 )
             else:
-                return {"status": "error", "message": "No se pudo identificar al cliente por su número de teléfono."}
+                return {"status": "error", "message": "Could not identify the client by their phone number."}
              
         # 2. Process booking
         return await create_appointment_workflow(

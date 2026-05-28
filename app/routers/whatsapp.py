@@ -44,7 +44,7 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
 
             # To avoid long messages, and possible attacks
             if len(content) > 160:
-                error_message = "El mensaje que has enviado es demasiado largo, porfavor intentalo de nuevo con uno más corto!"
+                error_message = "The message you have sent is too long, please try again with a shorter one!"
                 await send_message(client_phone_number, error_message, request.state.httpx_client)
 
             system_prompt = await generate_system_prompt(session, business_id)
@@ -57,6 +57,6 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
             print(f"event: {value.statuses[0].get("status")}")
     except Exception as e:
         if client_phone_number:
-            error_message = "Lo sentimos, el servicio no está disponible en este momento."
+            error_message = "We're sorry, the service is not available at this moment."
             await send_message(client_phone_number, error_message, request.state.httpx_client)
     return {"status": "ok"}

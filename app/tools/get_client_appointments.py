@@ -9,18 +9,18 @@ class GetClientAppointmentsSchema(BaseModel):
 
 class GetClientAppointmentsTool(BaseTool):
     name: str = "get_client_appointments"
-    description: str = "Consulta las citas futuras del cliente. Úsala cuando el cliente pregunte por sus citas o desee cancelar una."
+    description: str = "Query the client's future appointments. Use it when the client asks about their appointments or wishes to cancel one."
     args_schema: type[BaseModel] = GetClientAppointmentsSchema
 
     async def run(self, context: Any, session: Session, **kwargs) -> Any:
         appointments = await get_client_appointments(session, context.client_phone_number)
         
         if not appointments:
-            return {"status": "success", "message": "No tienes citas reservadas.", "data": []}
+            return {"status": "success", "message": "You have no booked appointments.", "data": []}
             
         return {
             "status": "success", 
-            "message": "Citas futuras del cliente:", 
+            "message": "Client's future appointments:", 
             "data": [
                 {"id": app.id, "start_time": app.start_time.isoformat(), "service_id": app.service_id} 
                 for app in appointments
