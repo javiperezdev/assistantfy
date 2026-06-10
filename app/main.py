@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .routers import whatsapp, clients, appointments
+from .routers import whatsapp
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
@@ -27,6 +27,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(whatsapp.router)
-app.include_router(clients.router)
-app.include_router(appointments.router)
 
