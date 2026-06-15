@@ -3,79 +3,37 @@ from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from app.models import Appointment, Client
 from app.services.worker_service import get_all_worker_hours, group_by_workers
+from app.services.appointment.calculator import subtract_sets, hide_past_slots
 
-async def get_client_appointments(session: Session, client_phone_number: str):
+async def get_client_appointments(session: Session, client_phone_number: str, business_id: int):
     """
     Get all the future appointments from a client
     """
     statement = (
         select(Appointment)
         .join(Client)
+        .where(Client.business_id == business_id)
         .where(Client.phone_number == client_phone_number)
         .where(Appointment.start_time >= datetime.now())
     )
     result = await session.exec(statement)
     return result.all()
 
-async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date):
+async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date, business_id: int):
     start_of_day = datetime.combine(requested_date, time.min)
     end_of_day = datetime.combine(requested_date, time.max)
-    statement = select(Appointment).where(Appointment.worker_id.in_(workers_id)).where(Appointment.start_time >= start_of_day, Appointment.end_time <= end_of_day)
+    statement = (
+        select(Appointment)
+        .where(Appointment.business_id == business_id)
+        .where(Appointment.worker_id.in_(workers_id))
+        .where(Appointment.start_time >= start_of_day, Appointment.end_time <= end_of_day)
+    )
     result = (await session.exec(statement)).all()
     return result
     
-def subtract_sets(
-    worker_hours: list, 
-    worker_apps: list, 
-    service_duration: timedelta, 
-    requested_date: date, 
-):
-    base_slots = set()
-    occupied_slots = set()
-    block_duration = timedelta(minutes=30)
-
-    for turn in worker_hours:
-        start = datetime.combine(requested_date, turn.start_time)
-        end = datetime.combine(requested_date, turn.end_time)
-        
-        # We divide the hours in 30 minutes blocks
-        while start + service_duration <= end:
-            base_slots.add(start.strftime("%H:%M"))
-            start += block_duration
-
-    for app in worker_apps:
-        app_start = app.start_time
-        app_end = app.end_time
-
-        # Divide the appointment in 30 minutes block
-        while app_start < app_end:
-            occupied_slots.add(app_start.strftime("%H:%M"))
-            app_start += block_duration
-
-    return base_slots - occupied_slots 
-
-def hide_past_slots(result: list, requested_date: date, timezone: ZoneInfo):
-    current_time = datetime.now(timezone)
-    current_date = current_time.date()
-
-    if requested_date < current_date:
-        return []
-    
-    if requested_date > current_date:
-        return result
-    
-    available_slots = []
-    current_time_str = current_time.strftime("%H:%M")
-
-    for hour_str in result:
-        if current_time_str < hour_str: 
-            available_slots.append(hour_str)
-    
-    return available_slots    
-
-async def get_available_slots(session: Session, worker_ids: list[int], duration: timedelta, requested_date: date, timezone: ZoneInfo):
-    all_hours = await get_all_worker_hours(session, worker_ids, requested_date.isoweekday())
-    all_appointments = await get_all_appointments(session, worker_ids, requested_date)
+async def get_available_slots(session: Session, business_id: int, worker_ids: list[int], duration: timedelta, requested_date: date, timezone: ZoneInfo):
+    all_hours = await get_all_worker_hours(session, worker_ids, requested_date.isoweekday(), business_id)
+    all_appointments = await get_all_appointments(session, worker_ids, requested_date, business_id)
 
     hours_by_worker = group_by_workers(all_hours)
     apps_by_worker = group_by_workers(all_appointments)

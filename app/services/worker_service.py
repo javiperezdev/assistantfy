@@ -1,22 +1,34 @@
 from datetime import datetime, timedelta
 from sqlmodel import Session, select
-from app.models import WorkerService, WorkerHours,Appointment
+from app.models import WorkerService, WorkerHours, Appointment, Worker
 from collections import defaultdict
 
-async def get_workers_by_service(session: Session, service_id: int):
+async def get_workers_by_service(session: Session, service_id: int, business_id: int):
     '''
     Method that returns workers able to perform a requested service
     '''
-    statement = select(WorkerService.worker_id).where(WorkerService.service_id == service_id)
+    statement = (
+        select(WorkerService.worker_id)
+        .join(Worker, WorkerService.worker_id == Worker.id)
+        .where(WorkerService.service_id == service_id, Worker.business_id == business_id)
+    )
     result = (await session.exec(statement)).all()
     return result
 
-async def get_all_worker_hours(session: Session, worker_ids: list[int], day_of_week: int):
+async def get_all_worker_hours(session: Session, worker_ids: list[int], day_of_week: int, business_id: int):
     '''
     Method that returns workers requested from a list containing their ids 
-    for an specific day of the week
+    for an specific day of the week, filtered by business
     '''
-    statement = select(WorkerHours).where(WorkerHours.worker_id.in_(worker_ids)).where(WorkerHours.day_of_week == day_of_week)
+    statement = (
+        select(WorkerHours)
+        .join(Worker, WorkerHours.worker_id == Worker.id)
+        .where(
+            WorkerHours.worker_id.in_(worker_ids),
+            WorkerHours.day_of_week == day_of_week,
+            Worker.business_id == business_id
+        )
+    )
     result = await session.exec(statement)
     return result.all()
 
@@ -30,7 +42,7 @@ def group_by_workers(objects_list: list[WorkerHours] | list[Appointment]):
         
     return workers_grouped
 
-async def get_first_available_worker(session: Session, service_id: int, start_time: datetime, duration_minutes: int):
+async def get_first_available_worker(session: Session, service_id: int, start_time: datetime, duration_minutes: int, business_id: int):
     """
     Returns the id from the worker who can perform the service
     """
@@ -49,6 +61,8 @@ async def get_first_available_worker(session: Session, service_id: int, start_ti
     statement = (
         select(WorkerService.worker_id)
         .join(WorkerHours, WorkerService.worker_id == WorkerHours.worker_id)
+        .join(Worker, WorkerService.worker_id == Worker.id)
+        .where(Worker.business_id == business_id)
         .where(
             WorkerService.service_id == service_id,
             WorkerHours.day_of_week == day_of_week,
