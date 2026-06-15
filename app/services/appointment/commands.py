@@ -55,7 +55,7 @@ async def create_appointment_workflow(session: Session, business_id: int, client
         worker_ids = await get_workers_by_service(session, service_id)
         tz = ZoneInfo(business.timezone)
         
-        new_slots = await get_available_slots(session, worker_ids, timedelta(minutes=service.duration_minutes), start_time.date(), tz)
+        new_slots = await get_available_slots(session, business_id, worker_ids, timedelta(minutes=service.duration_minutes), start_time.date(), tz)
         
         if not new_slots:
              return {

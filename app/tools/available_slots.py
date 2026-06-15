@@ -30,10 +30,11 @@ class GetAvailableSlotsTool(BaseTool):
         if not service:
             return {"status" : "error", "message" : "The service does not exist."}
 
-        worker_ids = await get_workers_by_service(session, validated_args.service_id)
+        worker_ids = await get_workers_by_service(session, validated_args.service_id, context.business_id)
         
         return await get_available_slots(
             session=session,
+            business_id=context.business_id,
             worker_ids=worker_ids,
             duration=timedelta(minutes=service.duration_minutes),
             requested_date=validated_args.requested_date,
