@@ -12,15 +12,15 @@ import app.main
 
 @pytest.fixture(scope="session")
 def client():
-    # Apply global mocks before app starts
     redis_client.ping = AsyncMock(return_value=True)
     redis_client.aclose = AsyncMock()
     app.main.create_db_and_tables = AsyncMock()
     
-    # Override database session
+    # Override database session (migh want to clear it if another specific funcitonalities are wanted)
     async def override_get_session():
         yield MagicMock(spec=AsyncSession)
     
+    #Here we change get_session for override_get_session
     fastapi_app.dependency_overrides[get_session] = override_get_session
     
     # Initialize TestClient

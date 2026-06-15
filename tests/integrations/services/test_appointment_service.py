@@ -23,7 +23,6 @@ async def test_multi_booking_exclusion(db_session):
     db_session.add(client)
     await db_session.flush()
     
-    # 1. Insert an appointment for Worker 1 on Friday from 10:00 AM to 11:00 AM.
     appointment1 = Appointment(
         business_id=business.id,
         service_id=service.id,
