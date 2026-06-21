@@ -1,6 +1,8 @@
+import { SettingView } from "./views/SettingsView/SettingView"
+
 function App() {
   return (
-    <div>Hello World!</div>
+    <SettingView />
   )
 }
 

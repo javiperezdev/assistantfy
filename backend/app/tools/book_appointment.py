@@ -20,7 +20,7 @@ class BookAppointmentTool(BaseTool):
     async def run(self, context: Any, session: Session, **kwargs) -> Any:
         validated_args = self.args_schema(**kwargs)
         duration_minutes = await get_time_from_service(validated_args.service_id, session)
-        w_id = await get_first_available_worker(session, validated_args.service_id, validated_args.start_time, duration_minutes)
+        w_id = await get_first_available_worker(session, validated_args.service_id, validated_args.start_time, duration_minutes, context.business_id)
 
         # 1. Resolve client_id
         client = await search_client_by_phone_number(context.client_phone_number, session)
