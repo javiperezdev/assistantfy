@@ -75,3 +75,8 @@ async def get_first_available_worker(session: Session, service_id: int, start_ti
 
     result = await session.exec(statement)
     return result.first()
+
+async def get_all_workers(business_id: int, session: Session):
+    statement = select(Worker).where(Worker.business_id == business_id)
+    result = await session.exec(statement)
+    return result.all()

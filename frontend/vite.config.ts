@@ -8,4 +8,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: { 
+      '/API': { // Make frontend think that data comes from his own port (when making request with '/API')
+        target: 'http://localhost:8000',
+        changeOrigin: true // backend believes request is coming from his wame port
+      }
+    }
+  }
 })

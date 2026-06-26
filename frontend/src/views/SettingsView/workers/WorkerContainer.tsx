@@ -1,18 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Worker } from '../../../types/worker';
 import { WorkerCard } from './WorkerCard';
 import { AddWorkerForm } from './AddWorkerForm';
 import { Toast } from '../../../components/Toast';
-
-// Mocked data that represents an array of workers 
-const workersMock: Worker[] = [
-    {id: 1, business_id: 1, name: "Javi Perez"},
-    {id: 2, business_id: 1, name: "Joseph Graha"},
-    {id: 3, business_id: 1, name: "Julian Marzo"}
-    ]
+import { getWorkers } from '../../../services/workerService';
 
 export function WorkerContainer() {
-    const [workers, setWorkers] = useState<Worker[]>(workersMock);
+    const [workers, setWorkers] = useState<Worker[]>([]);
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -42,6 +36,15 @@ export function WorkerContainer() {
             setToast({message:"Worker couldn't be added because name is empty!", type:"error"});
         }
     }
+    
+    useEffect(() => {
+        const loadWorkers = async () => {
+            const newWorkers = await getWorkers();
+            setWorkers(newWorkers);
+        }
+        
+        loadWorkers();
+    }, []);
 
     return (
         <>
