@@ -1,4 +1,5 @@
 import { WorkerContainer } from "./workers/WorkerContainer";
+import { SettingsCard } from "../../components/SettingsCard";
 
 export function SettingView() {
     
@@ -11,12 +12,12 @@ export function SettingView() {
 
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">       
                 <WorkerContainer />
-                <div className="bg-white rounded-xl border border-blue-200 border-dashed p-6 text-center text-blue-400">
+                <SettingsCard isPlaceholder>
                     Services Panel (Coming Soon)
-                </div>
-                <div className="bg-white rounded-xl border border-blue-200 border-dashed p-6 text-center text-blue-400">
+                </SettingsCard>
+                <SettingsCard isPlaceholder>
                     Business Hours (Coming Soon)
-                </div>
+                </SettingsCard>
             </div>
         </div>
     );

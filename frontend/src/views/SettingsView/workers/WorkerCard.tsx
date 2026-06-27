@@ -2,6 +2,7 @@ import type { Worker } from '../../../types/worker';
 import { Button } from '../../../components/Button';
 import { Trash } from '../../../components/icons/Trash';
 import { Plus } from '../../../components/icons/Plus';
+import { SettingsCard } from '../../../components/SettingsCard';
 
 
 export interface WorkersCardProps {
@@ -11,18 +12,17 @@ export interface WorkersCardProps {
 }
 
 export function WorkerCard({ workerList, onDeleteWorker, onAddWorker }: WorkersCardProps) {
+    const addWorkerButton = (
+        <Button 
+            onClick={onAddWorker} infoMessage="Add worker"
+        >
+            <Plus />
+            Add new worker
+        </Button>
+    );
+
     return (
-        <div className="bg-white rounded-xl border border-blue-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-xl font-bold text-blue-950">Workers</h1>
-                <Button 
-                    onClick={onAddWorker} infoMessage="Add worker"
-                >
-                    <Plus />
-                    Add Worker
-                </Button>
-            </div>
-            
+        <SettingsCard title="Workers" action={addWorkerButton}>
             <div className="space-y-3">
                 {workerList.map(({ id, name }) => (
                 <div key={id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-100 rounded-xl">                    <div className="w-8 h-8 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-semibold text-sm">
@@ -32,6 +32,6 @@ export function WorkerCard({ workerList, onDeleteWorker, onAddWorker }: WorkersC
                     <Button onClick={() => id !== undefined && onDeleteWorker(id)} infoMessage={`Delete ${name}`} variant='minimal'> <Trash /></Button>
                 </div>))}
             </div>
-    </div>
+        </SettingsCard>
     );
 }
