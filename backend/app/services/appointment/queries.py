@@ -1,11 +1,12 @@
-from sqlmodel import select, Session
+from sqlmodel import select
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from app.models import Appointment, Client
 from app.services.worker_service import get_all_worker_hours, group_by_workers
 from app.services.appointment.calculator import subtract_sets, hide_past_slots
+from sqlalchemy.ext.asyncio import AsyncSession
 
-async def get_client_appointments(session: Session, client_phone_number: str, business_id: int):
+async def get_client_appointments(session: AsyncSession, client_phone_number: str, business_id: int):
     """
     Get all the future appointments from a client
     """
@@ -19,7 +20,7 @@ async def get_client_appointments(session: Session, client_phone_number: str, bu
     result = await session.exec(statement)
     return result.all()
 
-async def get_all_appointments(session: Session, workers_id: list[int], requested_date: date, business_id: int):
+async def get_all_appointments(session: AsyncSession, workers_id: list[int], requested_date: date, business_id: int):
     start_of_day = datetime.combine(requested_date, time.min)
     end_of_day = datetime.combine(requested_date, time.max)
     statement = (
@@ -31,7 +32,7 @@ async def get_all_appointments(session: Session, workers_id: list[int], requeste
     result = (await session.exec(statement)).all()
     return result
     
-async def get_available_slots(session: Session, business_id: int, worker_ids: list[int], duration: timedelta, requested_date: date, timezone: ZoneInfo):
+async def get_available_slots(session: AsyncSession, business_id: int, worker_ids: list[int], duration: timedelta, requested_date: date, timezone: ZoneInfo):
     all_hours = await get_all_worker_hours(session, worker_ids, requested_date.isoweekday(), business_id)
     all_appointments = await get_all_appointments(session, worker_ids, requested_date, business_id)
 

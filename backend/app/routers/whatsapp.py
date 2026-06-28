@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks, D
 from app.config import settings
 from app.schemas.schemas_whatsapp import WebhookBody
 from app.services.ai_service import generate_response, generate_system_prompt
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession  
 from app.database import get_session
 from app.services.business_service import get_id_by_phone_number
 from app.services.context_manager import get_context
@@ -31,7 +31,7 @@ as the generation process exceeds Meta's mandatory response window.
 '''
 
 @router.post("/webhook")
-async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
+async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks, session: AsyncSession = Depends(get_session)):
     client_phone_number = None
     try:
         print(body)

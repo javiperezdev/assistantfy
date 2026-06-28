@@ -1,9 +1,10 @@
-from sqlmodel import select, Session
+from sqlmodel import select
 from app.models import Client
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 
-async def search_client_by_phone_number(phone_number: str, session: Session):
+async def search_client_by_phone_number(phone_number: str, session: AsyncSession):
     '''
     search_client_by_phone_number is in charge of obtaining clients 
     by phone number the reason of returning the first is
@@ -14,7 +15,7 @@ async def search_client_by_phone_number(phone_number: str, session: Session):
     return result.first()
 
 
-async def create_client(business_id: int, name: str, phone_number: str, session: Session):
+async def create_client(business_id: int, name: str, phone_number: str, session: AsyncSession):
     '''
     create_client is in charge of creating clients an adding them to the database
     '''

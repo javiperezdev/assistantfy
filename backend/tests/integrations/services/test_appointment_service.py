@@ -11,7 +11,7 @@ async def test_multi_booking_exclusion(db_session):
     db_session.add(business)
     await db_session.flush()
     
-    worker = Worker(business_id=business.id, name="worker")
+    worker = Worker(, business_id=business.id, name="worker")
     db_session.add(worker)
     await db_session.flush()
 

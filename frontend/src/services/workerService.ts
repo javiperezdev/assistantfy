@@ -1,9 +1,10 @@
 import { apiClient } from "./ApiClient";
 import type { Worker } from "../types/worker";
 
+// Currently querying business=1 for local development
+
 export async function getWorkers(): Promise<Worker[]> {
     try {
-        // Currently querying business=1 for local development
         const response = await apiClient.get("/workers?business_id=1");
         return response.data;
     }
@@ -11,4 +12,25 @@ export async function getWorkers(): Promise<Worker[]> {
         console.error("Error fetching data:", error);
     } 
 }
+
+export async function addWorker(name: string): Promise<Worker> {
+    try {
+        const response = await apiClient.post(`/worker?business_id=1&worker_name=${name}`);
+        return response.data;
+    } 
+    catch (error) {
+        console.error("Error adding data:", error);
+    }
+}
+
+export async function deleteWorker(id: number): Promise<Worker> {
+    try {
+        const response = await apiClient.delete(`/worker?business_id=1&worker_id=${id}`);
+        return response.data;
+    } 
+    catch (error) {
+        console.error("Error adding data:", error);
+    }
+}
+
 

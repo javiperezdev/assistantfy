@@ -1,11 +1,12 @@
-from sqlmodel import select, Session
+from sqlmodel import select
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from app.models import Worker, WorkerService
 from app.services.service_service import get_service_by_id
 from app.services.business_service import get_business_by_id
+from sqlalchemy.ext.asyncio import AsyncSession
 
-async def validate_appointment_creation(session: Session, business_id: int, service_id: int, worker_id: int, start_time: datetime):
+async def validate_appointment_creation(session: AsyncSession, business_id: int, service_id: int, worker_id: int, start_time: datetime):
     # 0. Validate time
     business = await get_business_by_id(session, business_id)
     if not business:

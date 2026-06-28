@@ -18,7 +18,7 @@ class Client(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
     phone_number: str = Field(unique=True)
-    name: str | None = None
+    name: str | None = None 
 
 class Service(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -31,6 +31,7 @@ class Worker(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
     name: str
+    is_active: bool | None = Field(default=True)
 
 class WorkerHours(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)

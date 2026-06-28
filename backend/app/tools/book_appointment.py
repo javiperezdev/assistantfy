@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Any
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession  
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.commands import create_appointment_workflow
 from app.services.client_service import search_client_by_phone_number, create_client
@@ -17,7 +17,7 @@ class BookAppointmentTool(BaseTool):
     description: str = "Book an appointment with a specific worker and service. Use it when the client has confirmed the date, time, worker, and service."
     args_schema: type[BaseModel] = BookAppointmentSchema
 
-    async def run(self, context: Any, session: Session, **kwargs) -> Any:
+    async def run(self, context: Any, session: AsyncSession, **kwargs) -> Any:
         validated_args = self.args_schema(**kwargs)
         duration_minutes = await get_time_from_service(validated_args.service_id, session)
         w_id = await get_first_available_worker(session, validated_args.service_id, validated_args.start_time, duration_minutes, context.business_id)

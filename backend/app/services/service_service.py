@@ -1,17 +1,18 @@
 from app.models import Service
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-async def get_time_from_service(service_id: int, session: Session):
+async def get_time_from_service(service_id: int, session: AsyncSession):
     statement = select(Service.duration_minutes).where(Service.id == service_id)
     result = await session.exec(statement)
     return result.first()
 
-async def get_service_by_id(session: Session, id: int):
+async def get_service_by_id(session: AsyncSession, id: int):
     statement = select(Service).where(Service.id == id)
     result = await session.exec(statement)
     return result.first()
 
-async def get_services_catalog(business_id: int, session: Session):
+async def get_services_catalog(business_id: int, session: AsyncSession):
     statement = select(Service).where(Service.business_id == business_id)
     services = await session.exec(statement)
     

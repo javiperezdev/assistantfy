@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Any
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession 
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.queries import get_client_appointments
 
@@ -12,7 +12,7 @@ class GetClientAppointmentsTool(BaseTool):
     description: str = "Query the client's future appointments. Use it when the client asks about their appointments or wishes to cancel one."
     args_schema: type[BaseModel] = GetClientAppointmentsSchema
 
-    async def run(self, context: Any, session: Session, **kwargs) -> Any:
+    async def run(self, context: Any, session: AsyncSession, **kwargs) -> Any:
         appointments = await get_client_appointments(session, context.client_phone_number)
         
         if not appointments:

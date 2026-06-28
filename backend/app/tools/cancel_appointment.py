@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Any
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession  
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.commands import cancel_appointment_workflow
 
@@ -12,7 +12,7 @@ class CancelAppointmentTool(BaseTool):
     description: str = "Cancels a specific client appointment. Use it only when the client has confirmed which appointment they wish to cancel."
     args_schema: type[BaseModel] = CancelAppointmentSchema
 
-    async def run(self, context: Any, session: Session, **kwargs) -> Any:
+    async def run(self, context: Any, session: AsyncSession, **kwargs) -> Any:
         validated_args = self.args_schema(**kwargs)
         
         return await cancel_appointment_workflow(

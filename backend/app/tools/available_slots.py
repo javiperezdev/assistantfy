@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ValidationError
 from datetime import date
 from typing import Any
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession  
 from app.schemas.ai_tools import BaseTool, register_tool
 from app.services.appointment.queries import get_available_slots
 from app.services.service_service import get_service_by_id
@@ -19,7 +19,7 @@ class GetAvailableSlotsTool(BaseTool):
     description: str = "Find free slots to book an appointment. Use it only when asked about availability or when they want to book an appointment."
     args_schema: type[BaseModel] = AvailableSlotsSchema
 
-    async def run(self, context: Any, session: Session, **kwargs) -> Any:
+    async def run(self, context: Any, session: AsyncSession, **kwargs) -> Any:
         validated_args = self.args_schema(**kwargs)
             
         business = await get_business_by_id(session, context.business_id)

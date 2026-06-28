@@ -1,6 +1,6 @@
 import json
 from openai import AsyncOpenAI
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession  
 from .whatsapp_service import send_message
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -60,7 +60,7 @@ async def generate_response(
     ai_client: AsyncOpenAI, 
     system_prompt: str, 
     business_id: int,
-    session: Session
+    session: AsyncSession
 ):
 
 

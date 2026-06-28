@@ -1,4 +1,4 @@
-from sqlmodel import select, Session
+from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
 from app.models import Appointment
@@ -8,8 +8,9 @@ from app.services.business_service import get_business_by_id
 from app.services.worker_service import get_workers_by_service
 from zoneinfo import ZoneInfo
 from app.services.client_service import search_client_by_phone_number
+from sqlalchemy.ext.asyncio import AsyncSession
 
-async def cancel_appointment_workflow(session: Session, appointment_id: int, client_phone_number: str):
+async def cancel_appointment_workflow(session: AsyncSession, appointment_id: int, client_phone_number: str):
     client = await search_client_by_phone_number(client_phone_number, session)
     if not client:
         return {"status": "error", "message": "Client not found."}
@@ -30,7 +31,7 @@ async def cancel_appointment_workflow(session: Session, appointment_id: int, cli
     except Exception:
         await session.rollback()
         return {"status": "error", "message": "Error cancelling the appointment."}
-async def create_appointment_workflow(session: Session, business_id: int, client_id: int, service_id: int, worker_id: int, start_time: datetime):
+async def create_appointment_workflow(session: AsyncSession, business_id: int, client_id: int, service_id: int, worker_id: int, start_time: datetime):
     # 1. Validation
     val_res = await validate_appointment_creation(session, business_id, service_id, worker_id, start_time)
     if val_res["status"] == "error":

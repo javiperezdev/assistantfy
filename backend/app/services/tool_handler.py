@@ -1,9 +1,9 @@
 from pydantic import ValidationError
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession 
 from app.schemas.ai_tools import get_tool
 from app.schemas.schemas_whatsapp import WhatsappContext
 import app.tools  # Triggers __init__ which loads the tools
-async def execute_tool(name: str, args: dict, context: WhatsappContext, session: Session):
+async def execute_tool(name: str, args: dict, context: WhatsappContext, session: AsyncSession):
     tool = get_tool(name)
     
     if not tool:
