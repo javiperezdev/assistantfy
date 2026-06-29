@@ -1,5 +1,5 @@
 import { PopUpTemplate } from '../../../components/PopUpTemplate';
-import { useState } from 'react'
+import React, {useState } from 'react'
 import { Button } from '../../../components/Button';
 
 interface AddWorkerFormProps {
@@ -10,7 +10,7 @@ interface AddWorkerFormProps {
 export function AddWorkerForm({ onClose, onSave }: AddWorkerFormProps) {
     const [name, setName] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.SubmitEvent) => {
         e.preventDefault();
         onSave(name);
     }

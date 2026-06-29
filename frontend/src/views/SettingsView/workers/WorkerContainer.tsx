@@ -23,13 +23,13 @@ export function WorkerContainer() {
     const handleSaveWorker = async (workerName: string) => {
         const newWorker = await addWorker(workerName)
 
-        if (workerName.trim() !== "") {
+        if (workerName.trim() !== "" && newWorker !== undefined) {
             setWorkers([...workers, newWorker]);
             setToast({message:"Worker added successfully!", type:"success"});
         }
 
         else {
-            setToast({message:"Worker couldn't be added because name is empty!", type:"error"});
+            setToast({message:"Worker couldn't be added, please try again later!", type:"error"});
         }
     }
     
