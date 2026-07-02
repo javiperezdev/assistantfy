@@ -41,6 +41,7 @@ class WorkerHours(SQLModel, table=True):
     end_time: time
 
 class WorkerService(SQLModel, table=True):
+    business_id: int = Field(primary_key=True, foreign_key="business.id")
     service_id: int = Field(primary_key=True, foreign_key="service.id")
     worker_id: int = Field(primary_key=True, foreign_key="worker.id")
 

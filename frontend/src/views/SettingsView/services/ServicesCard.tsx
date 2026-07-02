@@ -5,12 +5,18 @@ import { Trash } from '../../../components/icons/Trash';
 import { Plus } from '../../../components/icons/Plus';
 import { SettingsCard } from '../../../components/SettingsCard';
 import { EditIcon } from '../../../components/icons/EditIcon';
+import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 export interface ServicesCardProps {
     serviceList: Service[];
-    workerList: Worker[];
+    workerList?: Worker[];
+    isWorkerError: boolean;
+    isWorkerPending: boolean;
+    isWorkerServicePending: boolean;
+    isWorkerServiceError: boolean;
     assignedWorkersMap: Record<number, number[]>;
-    onDeleteService: (id: number) => void;
+    onDeleteService: (id: number, serviceWorkerIds) => void;
     onAddService: () => void;
     onUpdateService: (service: Service, workerIds: number[]) => void;
 }
@@ -18,10 +24,14 @@ export interface ServicesCardProps {
 export function ServicesCard({ 
     serviceList, 
     workerList,
+    isWorkerError,
+    isWorkerPending,
+    isWorkerServicePending,
+    isWorkerServiceError,
     assignedWorkersMap,
     onDeleteService, 
     onAddService,
-    onUpdateService 
+    onUpdateService
 }: ServicesCardProps) {
     const addServiceButton = (
         <Button 
@@ -37,8 +47,9 @@ export function ServicesCard({
             <div className="space-y-4">
                 {serviceList.map((service) => {
                     const id = service.id;
-                    const serviceWorkerIds = id !== undefined ? (assignedWorkersMap[id] || []) : [];
-                    const serviceWorkers = workerList.filter(w => w.id !== undefined && serviceWorkerIds.includes(w.id));
+                    const safeWorkerList = workerList ?? [];
+                    const serviceWorkerIds = assignedWorkersMap?.[id] ?? [];
+                    const serviceWorkers = safeWorkerList.filter(w => w.id !== undefined && serviceWorkerIds.includes(w.id));
 
                     return (
                         <div key={id} className="flex flex-col gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl hover:border-blue-200 transition-colors">
@@ -56,7 +67,7 @@ export function ServicesCard({
                                         <EditIcon />
                                     </Button>
                                     <Button 
-                                        onClick={() => id !== undefined && onDeleteService(id)} 
+                                        onClick={() => id !== undefined && onDeleteService(id, serviceWorkerIds)} 
                                         infoMessage={`Delete ${service.name}`} 
                                         variant='minimal'
                                     > 
@@ -67,6 +78,8 @@ export function ServicesCard({
 
                             <div className="flex flex-col gap-1 border-t border-blue-100/60 pt-2">
                                 <span className="text-xs font-semibold uppercase tracking-wider text-blue-500">Assigned Team</span>
+                                {(isWorkerPending || isWorkerServicePending) && <LoadingSpinner />}
+                                {(isWorkerError || isWorkerServiceError) && <ErrorMessage message="Could not load assigned workers" />}
                                 {serviceWorkers.length === 0 ? (
                                     <span className="text-xs text-blue-400 italic">No workers assigned</span>
                                 ) : (
@@ -87,7 +100,7 @@ export function ServicesCard({
                 })}
                 {serviceList.length === 0 && (
                     <div className="text-center py-6 text-blue-400 font-medium">
-                        No services registered yet. Click 'Add new service' to start.
+                        No services registered yet. Click 'Add new service'.
                     </div>
                 )}
             </div>

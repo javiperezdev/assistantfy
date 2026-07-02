@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.services.worker_service import get_all_workers, add_worker, delete_worker
 
-router = APIRouter(tags=["workers"])
+router = APIRouter(tags=["Worker"])
 
 @router.get("/workers")
 async def get_workers(business_id: int, session: AsyncSession = Depends(get_session)):

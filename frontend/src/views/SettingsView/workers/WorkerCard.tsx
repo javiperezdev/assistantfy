@@ -31,6 +31,11 @@ export function WorkerCard({ workerList, onDeleteWorker, onAddWorker }: WorkersC
                     <span className="text-blue-950 font-medium">{name}</span>
                     <Button onClick={() => id !== undefined && onDeleteWorker(id)} infoMessage={`Delete ${name}`} variant='minimal'> <Trash /></Button>
                 </div>))}
+                {workerList.length === 0 && (
+                    <div className="text-center py-6 text-blue-400 font-medium">
+                        No workers registered yet. Click 'Add new worker'.
+                    </div>
+                )}
             </div>
         </SettingsCard>
     );

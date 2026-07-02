@@ -9,16 +9,11 @@ export async function getWorkers(): Promise<Worker[]> {
 }
 
 export async function addWorker(name: string): Promise<Worker> {
-    try {
-        const response = await apiClient.post(`/worker?business_id=1&worker_name=${name}`);
-        return response.data;
-    }
-    catch {
-        return undefined;
-    }
+    const response = await apiClient.post(`/worker?business_id=1&worker_name=${name}`);
+    return response.data;
 }
 
 export async function deleteWorker(id: number): Promise<Worker> {
     const response = await apiClient.delete(`/worker?business_id=1&worker_id=${id}`);
     return response.data;
-    } 
+} 

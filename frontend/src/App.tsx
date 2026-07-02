@@ -1,9 +1,12 @@
 import { SettingView } from "./views/SettingsView/SettingView"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-function App() {
+export default function App() {
+  const queryClient = new QueryClient();
+
   return (
-    <SettingView />
+    <QueryClientProvider client={queryClient}>
+      <SettingView />
+    </QueryClientProvider>
   )
 }
-
-export default App
