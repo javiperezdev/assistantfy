@@ -43,6 +43,7 @@ export function WorkerContainer() {
         else {
             setToast({message:"Worker name cannot be empty!", type:"error"})
         }
+        setIsPopUpOpen(false)
     }
 
     const { data: workers, isPending, isError, refetch } = useWorkers();

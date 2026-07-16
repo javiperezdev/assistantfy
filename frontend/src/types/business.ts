@@ -13,4 +13,5 @@ export interface BusinessHours {
     day_of_week: DayOfWeekValue;
     start_time: string;
     end_time: string;
+    is_active?: boolean;
 }

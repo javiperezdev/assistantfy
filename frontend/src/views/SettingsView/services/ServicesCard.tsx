@@ -16,7 +16,7 @@ export interface ServicesCardProps {
     isWorkerServicePending: boolean;
     isWorkerServiceError: boolean;
     assignedWorkersMap: Record<number, number[]>;
-    onDeleteService: (id: number, serviceWorkerIds) => void;
+    onDeleteService: (id: number, serviceWorkerIds: number[]) => void;
     onAddService: () => void;
     onUpdateService: (service: Service, workerIds: number[]) => void;
 }

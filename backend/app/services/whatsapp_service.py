@@ -1,5 +1,8 @@
+import logging
 from app.config import settings 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 async def send_message(phone_number : str, content: str, httpx_client: httpx.AsyncClient):
     '''
@@ -23,7 +26,15 @@ async def send_message(phone_number : str, content: str, httpx_client: httpx.Asy
     "text": {"body": content}
     }
 
-
-    response = await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
+    try:
+        response = await httpx_client.post(url=meta_url, headers=meta_headers, json=payload)
+        response.raise_for_status()
+        resp_json = response.json()
+        msg_id = resp_json.get("messages", [{}])[0].get("id")
+        logger.info("WhatsApp sent | to=%s status=%s msg_id=%s content=%.100s",
+                    phone_number, response.status_code, msg_id, content)
+    except Exception as e:
+        logger.error("WhatsApp send failed | to=%s error=%s", phone_number, e)
+        raise
 
     

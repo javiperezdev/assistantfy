@@ -24,7 +24,6 @@ export function ServicesContainer() {
     const {mutate: deleteWorkerService} = useDeleteWorkerServiceMutation();
 
     const handleDeleteService = (serviceId: number, workerIds: number[]) => {
-        console.log(workerIds)
         if (workerIds) {
             workerIds.forEach(workerId => {
                 const workerService : WorkerService = {
@@ -81,6 +80,8 @@ export function ServicesContainer() {
                 setToast({message:"An error occurred when adding saving the service!", type:"error"})
             }
         });
+        
+        setIsPopUpOpen(false)
     }
 
     if (isServicePending) return <LoadingSpinner size="md" message="Loading services..." />

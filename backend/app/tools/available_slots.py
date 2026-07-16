@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 from datetime import date
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession  
@@ -27,6 +27,7 @@ class GetAvailableSlotsTool(BaseTool):
             return {"status" : "error", "message" : "The entered ID is not attached to any business."}
         
         service = await get_service_by_id(session, validated_args.service_id)
+        print(f"Service_id = {validated_args.service_id}")
         if not service:
             return {"status" : "error", "message" : "The service does not exist."}
 

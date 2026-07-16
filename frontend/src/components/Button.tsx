@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 interface ButtonProps {
-    onClick: () => void;
+    onClick?: () => void;
     infoMessage: string;
     children: ReactNode;
     variant?: 'solid' | 'minimal';

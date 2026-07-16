@@ -13,6 +13,7 @@ class BusinessHours(SQLModel, table=True):
     day_of_week: int 
     start_time: time 
     end_time: time
+    is_active: bool = Field(default=True)
 
 class Client(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -39,6 +40,7 @@ class WorkerHours(SQLModel, table=True):
     day_of_week: int
     start_time: time
     end_time: time
+    is_active: bool = Field(default=True)
 
 class WorkerService(SQLModel, table=True):
     business_id: int = Field(primary_key=True, foreign_key="business.id")

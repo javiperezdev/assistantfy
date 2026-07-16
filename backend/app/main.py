@@ -1,12 +1,16 @@
+import logging
+import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import whatsapp, worker, worker_service, service
+from .routers import whatsapp, worker, worker_service, service, business
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
 from .redis_client import redis_client
 import httpx
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", stream=sys.stdout)
 # I took the decision of importing models, to have them loaded when starting the server
 from .models import Client, Service, Appointment, Business, BusinessHours, Worker, WorkerService, WorkerHours, AdminUser
 
@@ -31,6 +35,7 @@ app.include_router(whatsapp.router)
 app.include_router(worker.router, prefix="/API")
 app.include_router(worker_service.router, prefix="/API")
 app.include_router(service.router, prefix="/API")
+app.include_router(business.router, prefix="/API")
 
 origins = [
     settings.front_end_url

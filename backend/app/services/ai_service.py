@@ -1,4 +1,5 @@
 import json
+import logging
 from openai import AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession  
 from .whatsapp_service import send_message
@@ -11,6 +12,8 @@ from app.schemas.schemas_whatsapp import WhatsappContext
 from .tool_handler import execute_tool
 from .context_manager import add_to_context
 import httpx
+
+logger = logging.getLogger(__name__)
 
 async def generate_system_prompt(session, business_id: int):
     """
@@ -78,6 +81,8 @@ async def generate_response(
     max_turns = 5
     current_turns = 0
 
+    logger.info("AI loop start | phone=%s context_size=%d", client_phone_number, len(context))
+
     while max_turns > current_turns:
         current_turns += 1
         
@@ -90,13 +95,19 @@ async def generate_response(
         )
 
         message = response.choices[0].message
-        print(message)
+        tokens = response.usage.total_tokens if response.usage else 0
+        finish = response.choices[0].finish_reason
 
         if not message.tool_calls:
+            logger.info("AI answer | phone=%s turn=%d tokens=%d finish=%s content=%.100s",
+                        client_phone_number, current_turns, tokens, finish, message.content or "")
             context.append({"role": "assistant", "content": message.content})
             await add_to_context(client_phone_number, context)
             await send_message(client_phone_number, message.content, httpx_client)
             return 
+
+        logger.info("AI tool call | phone=%s turn=%d tokens=%d finish=%s tools=%d",
+                    client_phone_number, current_turns, tokens, finish, len(message.tool_calls))
 
         message_dict = message.model_dump(exclude_none=True)
 
@@ -113,7 +124,8 @@ async def generate_response(
             args = json.loads(tool_call.function.arguments)
             
             result = await execute_tool(name, args, business_context, session)
-            print(f"tool result: {result}")
+            logger.info("Tool result | phone=%s tool=%s result=%.200s",
+                        client_phone_number, name, json.dumps(result, ensure_ascii=False))
             
             # To gather all the context of the reasoning
             conversation.append({
@@ -122,5 +134,6 @@ async def generate_response(
                 "content": json.dumps(result, ensure_ascii=False)
             })
             
+    logger.warning("AI loop exhausted | phone=%s turns=%d", client_phone_number, max_turns)
     error_message = "I'm sorry, a problem occurred while processing your request. Shall we try again?"
     await send_message(client_phone_number, error_message, httpx_client)
