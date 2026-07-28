@@ -1,5 +1,6 @@
 from sqlmodel import Field, SQLModel, Index
 from datetime import datetime, time
+from enum import Enum
 
 class Business(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -47,6 +48,12 @@ class WorkerService(SQLModel, table=True):
     service_id: int = Field(primary_key=True, foreign_key="service.id")
     worker_id: int = Field(primary_key=True, foreign_key="worker.id")
 
+class AppointmentState(str, Enum):
+    BOOKED = "BOOKED"
+    COMPLETED = "COMPLETED"
+    NO_SHOW = "NO_SHOW"
+    CANCELLED = "CANCELLED"
+
 class Appointment(SQLModel, table=True):
     '''
     Appointment class has a composite index because in services/appointment_service get_available_slots method
@@ -64,6 +71,7 @@ class Appointment(SQLModel, table=True):
     worker_id: int = Field(foreign_key="worker.id")
     start_time: datetime
     end_time: datetime
+    appointment_state: AppointmentState = Field(default=AppointmentState.BOOKED)
 
 class AdminUser(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
