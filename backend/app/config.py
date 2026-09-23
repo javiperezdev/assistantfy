@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     verification_token: str
     whatsapp_token: str
     phone_number_id: str
-    deepseek_api_key: str
+    ai_api_key: str
 
     # database
     database_url: str

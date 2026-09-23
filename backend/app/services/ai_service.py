@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 async def generate_system_prompt(session, business_id: int):
     """
-    Method in charge of generate the system prompt during runtime, this method is triggered by 
-    routers/whatsapp send_messagge method, which gives AI the business logic for each different 
+    Method in charge of generating the system prompt during runtime, this method is triggered by 
+    routers/whatsapp send_message method, which gives AI the business logic for each different 
     request. As context, it gets business related info and the current time depending of the business tz.
     """
 
@@ -31,21 +31,23 @@ async def generate_system_prompt(session, business_id: int):
     current_date = current_time.strftime("%Y-%m-%d")
     current_hour = current_time.strftime("%H:%M")
 
+    
+
     prompt = f"""
     You are the person in charge of managing appointments at '{business.name}' via WhatsApp. Your tone should be that of a real human: approachable, direct, extremely concise, and without chatbot formalities or fluff.
-
     <temporal_context>
     - Today is {day_of_week}, {current_date}. Current time: {current_hour}.
     Use this to know which days are "this Friday", "tomorrow", etc.
     </temporal_context>
 
+    {await get_services_catalog(business_id, session)}
+
    ### RULES OF STYLE 
     1. **Maximum Brevity:** Do not send more than two sentences per message. Be ultra-direct.
     2. **Zero Robot Formats:** Do not use numbered lists, bullet points, hyphens, excessive bold asterisks, or clock icons. Do not include prices or durations unless the client asks.
     3. **Moderate Emojis:** Use at most ONE emoji per conversation (e.g., a happy face at the very end).
-    4. **ABSOLUTE TOOL SILENCE (CRITICAL):** When calling a tool, your `content` field MUST BE EMPTY (""). DO NOT output phrases like "Let me check" or "I am looking". JUST call the tool.
-    5. **ZERO PARENTHESES (CRITICAL):** NEVER use parentheses () under ANY circumstances. If you need to clarify something, use commas or natural phrasing. Do not use them for dates, times, alternative options, or side notes.
-    6. **NO ECHOING (CRITICAL):** NEVER repeat sentences, questions, or information you already sent in previous messages. Respond ONLY to the user's newest message.
+    4. **ZERO PARENTHESES (CRITICAL):** NEVER use parentheses () under ANY circumstances. If you need to clarify something, use commas or natural phrasing. Do not use them for dates, times, alternative options, or side notes.
+    5. **NO ECHOING (CRITICAL):** NEVER repeat sentences, questions, or information you already sent in previous messages. Respond ONLY to the user's newest message.
 
     ### CONVERSATION FLOW 
     1. **Narrow Down Schedule:** When you know the day, DO NOT list single hours. Ask if "morning, midday, or afternoon" suits them better.
@@ -87,7 +89,7 @@ async def generate_response(
         current_turns += 1
         
         response = await ai_client.chat.completions.create(
-            model="deepseek-chat",
+            model="gemini-3.6-flash",
             messages=conversation,
             stream=False,
             tools=get_all_tool_definitions(),

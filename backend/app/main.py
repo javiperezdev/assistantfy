@@ -3,7 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import whatsapp, worker, worker_service, service, business
+from .routers import whatsapp, worker, worker_service, service, business, appointment
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
     on the other hand before shut down, server "closes the conection" with all this clients.
     """
     httpx_client = httpx.AsyncClient()   
-    ai_client = AsyncOpenAI(api_key=settings.deepseek_api_key, base_url="https://api.deepseek.com")
+    ai_client = AsyncOpenAI(api_key=settings.ai_api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
     await redis_client.ping()
     await create_db_and_tables()
     yield {"httpx_client": httpx_client, "ai_client": ai_client}
@@ -36,6 +36,7 @@ app.include_router(worker.router, prefix="/API")
 app.include_router(worker_service.router, prefix="/API")
 app.include_router(service.router, prefix="/API")
 app.include_router(business.router, prefix="/API")
+app.include_router(appointment.router, prefix="/API")
 
 origins = [
     settings.front_end_url

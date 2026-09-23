@@ -35,11 +35,8 @@ async def get_services_catalog(business_id: int, session: AsyncSession):
     list_format = "\n".join(services_list)
 
     if len(services_list) == 1:
-        unique_service = services_list[0]
         return f"""
-        - This business offers a SINGLE generic service.
-        - DO NOT ask the client what service they want. Assume directly that they want a normal appointment.
-        - When using the 'check_availability_tool', ALWAYS pass the service_id: {unique_service.id}.
+        - DO NOT ask the client about the service they want to book, as there is only one service available. Use the ID: {services_list[0].split(':')[1].split(']')[0]} when calling 'get_available_slots'.
         """
     
     return f"""

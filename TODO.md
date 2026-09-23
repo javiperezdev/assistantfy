@@ -1,20 +1,18 @@
 # 🎯 FOCUS
-- analytic to show number of appointments (total, last day, last week, last year)
+- Review the methods relate with checking available slots because they are giving bugs
 ---
 
 # 🧠 BRAIN DUMP
-- Fix AI conversations hallucinations. Spoted erros when asking to book an appointment by querying an invalid id
 - Investigar como crear rutas privadas para usuarios loggeados
 - style 404 page
-- style dashboard
-- analytic to show percentage of occupation
-- analytic to show money made
-
+- Fix bug when business isnt introduced in the database
+- Check how are workers being assigned for each task
 
 
 ---
 
 # ✅ WINS
+- [x] Inject service catalogue creating a catalogue of services
 - [x] Give states to an appointment (Booked, cancelled, no_show, completed)
 - [x] Think about what to implement in the dashboard
 - [x] Crear Pagina para el error 404 mostrando pagina no encontrada

@@ -31,6 +31,7 @@ async def cancel_appointment_workflow(session: AsyncSession, appointment_id: int
     except Exception:
         await session.rollback()
         return {"status": "error", "message": "Error cancelling the appointment."}
+
 async def create_appointment_workflow(session: AsyncSession, business_id: int, client_id: int, service_id: int, worker_id: int, start_time: datetime):
     # 1. Validation
     val_res = await validate_appointment_creation(session, business_id, service_id, worker_id, start_time)
