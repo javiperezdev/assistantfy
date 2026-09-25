@@ -13,7 +13,7 @@ class GetClientAppointmentsTool(BaseTool):
     args_schema: type[BaseModel] = GetClientAppointmentsSchema
 
     async def run(self, context: Any, session: AsyncSession, **kwargs) -> Any:
-        appointments = await get_client_appointments(session, context.client_phone_number)
+        appointments = await get_client_appointments(session, context.client_phone_number, context.business_id)
         
         if not appointments:
             return {"status": "success", "message": "You have no booked appointments.", "data": []}

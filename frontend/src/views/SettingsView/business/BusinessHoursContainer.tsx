@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useBusinessHours, useCreateBusinessHours, useUpdateBusinessHour, useDeleteBusinessHour } from '../../../hooks/useBusiness';
 import type { DayOfWeekValue } from '../../../types/business';
 import { BusinessHoursCard } from './BusinessHoursCard';
+import { nextSlotEnd } from '../../../utils/timeSlots';
 import { Toast } from '../../../components/Toast';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
 import { ErrorMessage } from '../../../components/ErrorMessage';
@@ -56,11 +57,10 @@ export function BusinessHoursContainer() {
 
     const handleAddSlot = (dayOfWeek: DayOfWeekValue) => {
         const daySlots = hours?.filter(h => h.day_of_week === dayOfWeek) ?? [];
-        const last = daySlots[daySlots.length - 1];
-        const start = last ? last.end_time : "09:00";
-        const [h, m] = start.split(":").map(Number);
-        const end = `${String(Math.min(h + 1, 23)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-        createBusinessHours({ business_id: 1, day_of_week: dayOfWeek, start_time: start, end_time: end }, {
+        const start = daySlots[daySlots.length - 1]?.end_time ?? "09:00";
+        const end_time = nextSlotEnd(start);
+        if (!end_time) return; // no room before the last selectable slot
+        createBusinessHours({ business_id: 1, day_of_week: dayOfWeek, start_time: start, end_time }, {
             onSuccess: () => onSuccess("Business hours updated"),
             onError,
         });

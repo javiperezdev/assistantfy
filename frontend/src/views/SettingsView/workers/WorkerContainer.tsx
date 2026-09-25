@@ -4,10 +4,15 @@ import { AddWorkerForm } from './AddWorkerForm';
 import { Toast } from '../../../components/Toast';
 import { LoadingSpinner } from '../../../components/LoadingSpinner';
 import { ErrorMessage } from '../../../components/ErrorMessage';
+import { EditWorkerHoursForm } from './EditWorkerHoursForm';
+import type { Worker, WorkerHours } from '../../../types/worker';
 import { useCreateWorker, useDeleteWorker, useWorkers } from '../../../hooks/useWorkers';
 
 export function WorkerContainer() {
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
+    const [hoursWorker, setHoursWorker] = useState<Worker | null>(null);
+    // Mockup: hours live in local state until the backend exposes worker-hours endpoints
+    const [hoursByWorker, setHoursByWorker] = useState<Record<number, WorkerHours[]>>({});
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const {mutate: deleteWorker} = useDeleteWorker();
     const {mutate: createWorker} = useCreateWorker();
@@ -46,6 +51,17 @@ export function WorkerContainer() {
         setIsPopUpOpen(false)
     }
 
+    const handleSaveHours = (hours: WorkerHours[]) => {
+        if (!hoursWorker) return;
+        if (hours.some(h => h.start_time >= h.end_time)) {
+            setToast({message:"Start time must be before end time", type:"error"});
+            return;
+        }
+        setHoursByWorker(prev => ({ ...prev, [hoursWorker.id!]: hours }));
+        setHoursWorker(null);
+        setToast({message:"Working hours saved! (mock)", type:"success"});
+    }
+
     const { data: workers, isPending, isError, refetch } = useWorkers();
 
     if (isPending) return <LoadingSpinner message="Loading workers..." size="md" />;
@@ -57,10 +73,19 @@ export function WorkerContainer() {
                 workerList={workers} 
                 onDeleteWorker={handleDeleteWorker}
                 onAddWorker={handleAddWorker}
+                onEditHours={setHoursWorker}
             />
 
             {isPopUpOpen && (
                 <AddWorkerForm onClose={() => setIsPopUpOpen(false)} onSave={(handleSaveWorker)} />)}
+
+            {hoursWorker && (
+                <EditWorkerHoursForm
+                    worker={hoursWorker}
+                    initialHours={hoursByWorker[hoursWorker.id!] ?? []}
+                    onClose={() => setHoursWorker(null)}
+                    onSave={handleSaveHours}
+                />)}
         
             {toast && (
                 <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />    

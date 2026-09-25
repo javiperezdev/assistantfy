@@ -34,7 +34,7 @@ async def generate_system_prompt(session, business_id: int):
     
 
     prompt = f"""
-    You are the person in charge of managing appointments at '{business.name}' via WhatsApp. Your tone should be that of a real human: approachable, direct, extremely concise, and without chatbot formalities or fluff.
+    You are in charge of managing appointments at '{business.name}' via WhatsApp. Your tone should be that of a real human: approachable, direct, extremely concise, and without chatbot formalities or fluff.
     <temporal_context>
     - Today is {day_of_week}, {current_date}. Current time: {current_hour}.
     Use this to know which days are "this Friday", "tomorrow", etc.
@@ -53,7 +53,7 @@ async def generate_system_prompt(session, business_id: int):
     1. **Narrow Down Schedule:** When you know the day, DO NOT list single hours. Ask if "morning, midday, or afternoon" suits them better.
     2. **Show the Range:** After checking slots, tell them the available range naturally (e.g., "In the afternoon I have from 14:00 to 17:30. What time works best for you?").
     3. **Ask for Name:** When the client specifies an exact time, say immediately: "Okay, at [time]. Can you give me your name to book it?". Do not repeat the available range here.
-    4. **Human Confirmation:** After booking (always worker_id=1), confirm in one short sentence (e.g., "Your appointment is booked, [Name]. On [day] at [time]. We look forward to seeing you!").
+    4. **Human Confirmation:** After booking, confirm in one short sentence (e.g., "Your appointment is booked, [Name]. On [day] at [time]. We look forward to seeing you!").
     """
     
     return prompt
@@ -89,7 +89,7 @@ async def generate_response(
         current_turns += 1
         
         response = await ai_client.chat.completions.create(
-            model="gemini-3.6-flash",
+            model="deepseek-flash",
             messages=conversation,
             stream=False,
             tools=get_all_tool_definitions(),

@@ -54,7 +54,7 @@ async def create_appointment_workflow(session: AsyncSession, business_id: int, c
     if slot_exists:
         # Re-fetch slots for error response
         business = await get_business_by_id(session, business_id)
-        worker_ids = await get_workers_by_service(session, service_id)
+        worker_ids = await get_workers_by_service(session, service_id, business_id)
         tz = ZoneInfo(business.timezone)
         
         new_slots = await get_available_slots(session, business_id, worker_ids, timedelta(minutes=service.duration_minutes), start_time.date(), tz)

@@ -1,8 +1,9 @@
 from sqlmodel import select
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
-from app.models import Appointment, Client
+from app.models import Appointment, AppointmentState, Client
 from app.services.worker_service import get_all_worker_hours, group_by_workers
+from app.services.business_service import get_business_by_id
 from app.services.appointment.calculator import subtract_sets, hide_past_slots
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,12 +11,17 @@ async def get_client_appointments(session: AsyncSession, client_phone_number: st
     """
     Get all the future appointments from a client
     """
+    # Appointment times are stored in the business timezone as naive datetimes,
+    # so "now" must be computed in that same timezone to compare correctly.
+    business = await get_business_by_id(session, business_id)
+    now = datetime.now(ZoneInfo(business.timezone)).replace(tzinfo=None) if business else datetime.now()
+
     statement = (
         select(Appointment)
         .join(Client)
         .where(Client.business_id == business_id)
         .where(Client.phone_number == client_phone_number)
-        .where(Appointment.start_time >= datetime.now())
+        .where(Appointment.start_time >= now)
     )
     result = await session.exec(statement)
     return result.all()
@@ -27,6 +33,7 @@ async def get_all_appointments(session: AsyncSession, workers_id: list[int], req
         select(Appointment)
         .where(Appointment.business_id == business_id)
         .where(Appointment.worker_id.in_(workers_id))
+        .where(Appointment.appointment_state == AppointmentState.BOOKED)
         .where(Appointment.start_time >= start_of_day, Appointment.end_time <= end_of_day)
     )
     result = (await session.exec(statement)).all()
