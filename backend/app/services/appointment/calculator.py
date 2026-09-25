@@ -7,8 +7,8 @@ def subtract_sets(
     service_duration: timedelta, 
     requested_date: date, 
 ):
-    base_slots = set()
-    occupied_slots = set()
+    candidate_slots = []
+    free_slots = set()
     block_duration = timedelta(minutes=30)
 
     for turn in worker_hours:
@@ -17,19 +17,18 @@ def subtract_sets(
         
         # We divide the hours in 30 minutes blocks
         while start + service_duration <= end:
-            base_slots.add(start.strftime("%H:%M"))
+            candidate_slots.append(start)
             start += block_duration
 
-    for app in worker_apps:
-        app_start = app.start_time
-        app_end = app.end_time
+    # A slot is only free if [slot, slot + service_duration) does not overlap
+    # any appointment, even when the slot starts before the appointment does.
+    for slot in candidate_slots:
+        slot_end = slot + service_duration
+        overlaps = any(slot < app.end_time and slot_end > app.start_time for app in worker_apps)
+        if not overlaps:
+            free_slots.add(slot.strftime("%H:%M"))
 
-        # Divide the appointment in 30 minutes block
-        while app_start < app_end:
-            occupied_slots.add(app_start.strftime("%H:%M"))
-            app_start += block_duration
-
-    return base_slots - occupied_slots 
+    return free_slots
 
 def hide_past_slots(result: list, requested_date: date, timezone: ZoneInfo):
     current_time = datetime.now(timezone)

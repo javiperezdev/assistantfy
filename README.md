@@ -1,197 +1,54 @@
- # Assistantfy
+# Assistantfy
 
-![Logo](assets/logo.png)
+AI agent capable of managing all client bookings, cancelling and modifying appointments, and answering questions about schedules and services while keeping the data highly reliable.
 
-*An enterprise-grade B2B SaaS backend designed to transform LLMs into autonomous agents for real-time business operations and booking management.*
+📦 Technologies
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
+* Python
+* FastAPI
+* PostgreSQL
+* Vite
+* React.js
+* TypeScript
 
----
+🦄 Features
 
-## 🌟 Highlights
+Here's what you can do with Assistantfy:
 
-*   **🚀 24/7 Autonomous Operations:** Automates end-to-end appointment scheduling and FAQ handling.
-*   **🧠 LLM-Powered:** Moves beyond simple chatbot scripts for natural, dynamic conversation.
-*   **⚡ Extensible Architecture:** Modular tool-calling engine for easy feature additions.
-*   **🔒 Multi-tenant:** Robust database schema ensuring strict data isolation.
-*   **🧠 Stateful Loops:** Uses Redis to maintain context across long-term conversations.
+* As a client, you can chat via WhatsApp in order to book, modify, and cancel an appointment, as well as get your questions answered (schedules, services...).
 
----
+* As a business owner, you can configure your entire business (workers, workers' hours, services, and schedules).
 
-## ℹ️ Overview
+* And we are on the way to implementing a functionality to view all your appointments.
 
-Assistantfy empowers local businesses (clinics, salons, etc.) by acting as an affordable, 24/7 autonomous virtual assistant. It moves beyond simple chatbot scripts by utilizing LLMs to manage end-to-end appointment scheduling, FAQ handling, and dynamic conversation management—enabling business owners to focus on operations while the agent handles customer interaction.
+📚 What I Learned
 
----
+Maybe it's difficult to put into words everything I have learned while developing this project:
 
-## 🚀 Usage
+* Learned how to use new technologies such as FastAPI, PostgreSQL, React, TypeScript, Docker, and Git.
 
-Assistantfy is designed to integrate into your business messaging flows.
+* How to consume AI through APIs, fine-tuning, prompting, and create a ReAct loop (agent orchestration).
 
-### Examples of Interaction Flow
+* Consume the WhatsApp API and send messages with background tasks (from FastAPI).
 
-#### Checking for availability and booking
-![Example of booking](assets/GetAVandBookAPP.png)
+It's a little bit of a vague and short description because this project changed the way I think about the quality of the software I am building. I have had my ups and downs with the project, but I have consistently kept pushing and learning, which was the objective.
 
-#### Cancelling an appointment
-![Example of cancelling](assets/DELETE.png)
+🚦 Running the Project
 
----
+To run the project in your local environment, follow these steps:
 
-## 🏗 DB Architecture
+1. Clone the repository to your local machine.
 
-```mermaid
-erDiagram
-    %% CORE TENANT & AUTHENTICATION
-    BUSINESS {
-        int id PK
-        string phone_number
-        string name
-        string timezone
-    }
+2. Create a `.env` file with all the required API keys.
 
-    ADMIN_USER {
-        int id PK
-        int business_id FK
-        string email UK "Unique"
-        string hashed_password
-        boolean is_active
-    }
+3. Register with Meta for Developers (get the keys).
 
-    BUSINESS_HOURS {
-        int id PK
-        int business_id FK
-        int day_of_week "1=Mon, 7=Sun"
-        time start_time
-        time end_time
-    }
+4. Install the required dependencies.
 
-    %% RESOURCES & SKILLS
-    WORKER {
-        int id PK
-        int business_id FK
-        string name
-    }
+5. Execute `docker compose up -d` in the terminal.
 
-    WORKER_HOURS {
-        int id PK
-        int worker_id FK
-        int day_of_week
-        time start_time
-        time end_time
-    }
+6. Open WhatsApp if you want to use the client side, or http://localhost:5173 if you want to test the business owner side.
 
-    SERVICE {
-        int id PK
-        int business_id FK
-        string name 
-        float price 
-        int duration_minutes 
-    }
+🍿 Video
 
-    WORKER_SERVICE {
-        int worker_id PK,FK "Points to Worker.id"
-        int service_id PK,FK "Points to Service.id"
-    }
-
-    %% CUSTOMERS
-    CLIENT {
-        int id PK
-        int business_id FK
-        string phone_number UK "Unique per Business"
-        string name
-    }
-    
-    %% TRANSACTIONS 
-    APPOINTMENT {
-        int id PK
-        int business_id FK
-        int client_id FK
-        int worker_id FK
-        int service_id FK
-        datetime start_time 
-        datetime end_time
-    }
-
-    %% RELATIONSHIPS
-    BUSINESS ||--o{ ADMIN_USER : "has accounts (login)"
-    BUSINESS ||--o{ BUSINESS_HOURS : "operates during"
-    BUSINESS ||--o{ WORKER : "employs"
-    BUSINESS ||--o{ SERVICE : "offers"
-    BUSINESS ||--o{ CLIENT : "registers"
-    BUSINESS ||--o{ APPOINTMENT : "manages"
-    
-    %% MANY-TO-MANY RESOLUTION
-    WORKER ||--o{ WORKER_SERVICE : "can perform"
-    SERVICE ||--o{ WORKER_SERVICE : "is performed by"
-
-    %% APPOINTMENT RELATIONSHIPS
-    CLIENT ||--o{ APPOINTMENT : "books"
-    WORKER ||--o{ APPOINTMENT : "attends"
-    SERVICE ||--o{ APPOINTMENT : "includes"
-
-    WORKER ||--o{ WORKER_HOURS : "works"
-```
-
----
-
-## ⬇️ Installation
-
-
-### Prerequisites
-*   Python 3.12+
-*   PostgreSQL
-*   Redis
-*   Docker & Docker Compose (optional, for infrastructure)
-
-### Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/assistantfy.git
-   cd assistantfy
-   ```
-
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-3. Create a `.env` file in the root directory and configure the following required environment variables:
-   ```env
-   # API & Integration
-   VERIFICATION_TOKEN=your_verification_token
-   WHATSAPP_TOKEN=your_whatsapp_token
-   PHONE_NUMBER_ID=your_phone_number_id
-   DEEPSEEK_API_KEY=your_deepseek_api_key
-
-   # Database & Infrastructure
-   DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-   POSTGRES_USER=user
-   POSTGRES_PASSWORD=password
-   POSTGRES_DB=dbname
-   REDIS_URL=redis://localhost:6379/0
-   ```
-
-### Execution
-If you have Docker installed, you can start the infrastructure (Postgres/Redis) with:
-```bash
-docker-compose up -d
-```
-
-Then, start the FastAPI application:
-```bash
-uvicorn app.main:app --reload
-```
-The API will be available at `http://localhost:8000`.
-
-
----
-
-## 💬 Community & Contributing
-
-We welcome contributions! If you have suggestions, found a bug, or would like to propose a new feature, please open an issue or start a Discussion in the GitHub repository.
+Coming soon...

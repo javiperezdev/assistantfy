@@ -11,7 +11,7 @@ class Business(SQLModel, table=True):
 class BusinessHours(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
-    day_of_week: int 
+    day_of_week: int # 1=Monday, 7=Sunday
     start_time: time 
     end_time: time
     is_active: bool = Field(default=True)
@@ -38,7 +38,7 @@ class Worker(SQLModel, table=True):
 class WorkerHours(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     worker_id: int = Field(foreign_key="worker.id")
-    day_of_week: int
+    day_of_week: int # 1=Monday, 7=Sunday
     start_time: time
     end_time: time
     is_active: bool = Field(default=True)

@@ -14,8 +14,8 @@ async def test_tenant_isolation_leak(db_session: AsyncSession):
     await db_session.refresh(business_a)
     await db_session.refresh(business_b)
 
-    worker_a = Worker(, business_id=business_a.id, name="Worker A")
-    worker_b = Worker(, business_id=business_b.id, name="Worker B")
+    worker_a = Worker(business_id=business_a.id, name="Worker A")
+    worker_b = Worker(business_id=business_b.id, name="Worker B")
     db_session.add(worker_a)
     db_session.add(worker_b)
     await db_session.commit()
