@@ -52,7 +52,8 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
             if len(content) > 160:
                 error_message = "The message you have sent is too long, please try again with a shorter one!"
                 await send_message(client_phone_number, error_message, request.state.httpx_client)
-
+                return {"status": "ok"} # end execution 
+                
             system_prompt = await generate_system_prompt(session, business_id)
 
             context = await get_context(client_phone_number)

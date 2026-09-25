@@ -3,6 +3,15 @@
 ---
 
 # 🧠 BRAIN DUMP
+- *Priority*
+1. Redis context structure
+2. business_id + phone_number Redis isolation
+3. inactive Worker/WorkerHours filtering
+4. WorkerHours actually being persisted
+5. long-message return bug
+6. webhook payload validation
+7. duplicate webhook/idempotency
+
 - Investigar como crear rutas privadas para usuarios loggeados
 - style 404 page
 - Fix bug when business isnt introduced in the database
@@ -10,13 +19,24 @@
 - Create functionality to manage workerHours from the frontend (also develop endpoints in the backend)
 - Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
-- We have to make an authentification system because all the queries are getting business_id=1 as we were doing for testing
-- Passwords are stored directly that's a problem
 - when a message arrives I should check if it isn't text so I would answer that the format is not supported try sending a text message...
 
+
+- Security and integrity
+8. authentication
+9. authorization
+10. password hashing
+11. business-scoped mutations
+12. Meta webhook signature validation
+Improve architecture as the project grows
+13. database migrations
+14. timezone model
+15. data constraints
+16. better error handling
+17. better AI context management
+
+
        
-
-
 ---
 
 # ✅ WINS

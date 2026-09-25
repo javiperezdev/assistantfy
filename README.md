@@ -1,23 +1,25 @@
 # Assistantfy
 
-AI agent capable of managing all client bookings, cancelling and modifying appointments, and answering questions about schedules and services while keeping the data highly reliable.
+AI agent capable of managing all client bookings, cancelling appointments, and answering questions about schedules and services while keeping the data reliable.
 
 📦 Technologies
 
 * Python
 * FastAPI
 * PostgreSQL
+* Redis
 * Vite
 * React.js
 * TypeScript
+* Docker
 
 🦄 Features
 
 Here's what you can do with Assistantfy:
 
-* As a client, you can chat via WhatsApp in order to book, modify, and cancel an appointment, as well as get your questions answered (schedules, services...).
+* As a client, you can chat via WhatsApp in order to book and cancel an appointment, as well as get your questions answered (schedules, services...).
 
-* As a business owner, you can configure your entire business (workers, workers' hours, services, and schedules).
+* As a business owner, you can configure your business (workers, services, worker-service assignments, and business hours).
 
 * And we are on the way to implementing a functionality to view all your appointments.
 
@@ -25,9 +27,9 @@ Here's what you can do with Assistantfy:
 
 Maybe it's difficult to put into words everything I have learned while developing this project:
 
-* Learned how to use new technologies such as FastAPI, PostgreSQL, React, TypeScript, Docker, and Git.
+* Learned how to use new technologies such as FastAPI, PostgreSQL, React, TypeScript, Docker, Redis and Git.
 
-* How to consume AI through APIs, fine-tuning, prompting, and create a ReAct loop (agent orchestration).
+* How to consume AI through APIs, how to keep the context of the model through the conversation, prompting and how to create an agent loop so AI could have access to tools.
 
 * Consume the WhatsApp API and send messages with background tasks (from FastAPI).
 
