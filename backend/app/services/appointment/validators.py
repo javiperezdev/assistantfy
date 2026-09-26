@@ -29,7 +29,7 @@ async def validate_appointment_creation(session: AsyncSession, business_id: int,
         return {"status": "error", "message": "The service does not belong to the business."}
 
     # 2. Validate Worker
-    worker_statement = select(Worker).where(Worker.id == worker_id)
+    worker_statement = select(Worker).where(Worker.id == worker_id, Worker.is_active == True)
     worker = (await session.exec(worker_statement)).first()
     if not worker:
         return {"status": "error", "message": "The worker does not exist."}

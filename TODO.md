@@ -1,4 +1,5 @@
 # 🎯 FOCUS
+3. inactive Worker/WorkerHours filtering
 
 ---
 
@@ -6,7 +7,7 @@
 - *Priority*
 1. Redis context structure
 2. business_id + phone_number Redis isolation
-3. inactive Worker/WorkerHours filtering
+- add business_id to all queries to ensure multitenancy
 4. WorkerHours actually being persisted
 5. long-message return bug
 6. webhook payload validation

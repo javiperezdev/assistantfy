@@ -2,7 +2,7 @@
 
 AI agent capable of managing all client bookings, cancelling appointments, and answering questions about schedules and services while keeping the data reliable.
 
-📦 Technologies
+## 📦 Technologies
 
 * Python
 * FastAPI
@@ -13,7 +13,7 @@ AI agent capable of managing all client bookings, cancelling appointments, and a
 * TypeScript
 * Docker
 
-🦄 Features
+## 🦄 Features
 
 Here's what you can do with Assistantfy:
 
@@ -23,7 +23,7 @@ Here's what you can do with Assistantfy:
 
 * And we are on the way to implementing a functionality to view all your appointments.
 
-📚 What I Learned
+## 📚 What I Learned
 
 Maybe it's difficult to put into words everything I have learned while developing this project:
 
@@ -35,7 +35,7 @@ Maybe it's difficult to put into words everything I have learned while developin
 
 It's a little bit of a vague and short description because this project changed the way I think about the quality of the software I am building. I have had my ups and downs with the project, but I have consistently kept pushing and learning, which was the objective.
 
-🚦 Running the Project
+## 🚦 Running the Project
 
 To run the project in your local environment, follow these steps:
 
@@ -51,6 +51,6 @@ To run the project in your local environment, follow these steps:
 
 6. Open WhatsApp if you want to use the client side, or http://localhost:5173 if you want to test the business owner side.
 
-🍿 Video
+## 🍿 Video
 
 Coming soon...

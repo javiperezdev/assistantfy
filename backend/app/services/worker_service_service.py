@@ -1,13 +1,14 @@
 from sqlmodel import select, delete
 from sqlalchemy import func
-from app.models import WorkerService
+from app.models import Worker, WorkerService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 async def get_worker_services(session: AsyncSession, business_id: int):
     statement = (
         select(WorkerService.service_id,
         func.array_agg(WorkerService.worker_id).label("worker_ids"))
-        .where(WorkerService.business_id == business_id)
+        .join(Worker, WorkerService.worker_id == Worker.id)
+        .where(WorkerService.business_id == business_id, Worker.is_active == True)
         .group_by(WorkerService.service_id)
     )
     result = await session.exec(statement)

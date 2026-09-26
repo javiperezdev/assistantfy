@@ -11,7 +11,7 @@ async def get_workers_by_service(session: AsyncSession, service_id: int, busines
     statement = (
         select(WorkerService.worker_id)
         .join(Worker, WorkerService.worker_id == Worker.id)
-        .where(WorkerService.service_id == service_id, Worker.business_id == business_id)
+        .where(WorkerService.service_id == service_id, Worker.business_id == business_id, Worker.is_active == True)
     )
     result = (await session.exec(statement)).all()
     return result
@@ -27,7 +27,8 @@ async def get_all_worker_hours(session: AsyncSession, worker_ids: list[int], day
         .where(
             WorkerHours.worker_id.in_(worker_ids),
             WorkerHours.day_of_week == day_of_week,
-            Worker.business_id == business_id
+            Worker.business_id == business_id,
+            Worker.is_active == True
         )
     )
     result = await session.exec(statement)
@@ -63,7 +64,7 @@ async def get_first_available_worker(session: AsyncSession, service_id: int, sta
         select(WorkerService.worker_id)
         .join(WorkerHours, WorkerService.worker_id == WorkerHours.worker_id)
         .join(Worker, WorkerService.worker_id == Worker.id)
-        .where(Worker.business_id == business_id)
+        .where(Worker.business_id == business_id, Worker.is_active == True)
         .where(
             WorkerService.service_id == service_id,
             WorkerHours.day_of_week == day_of_week,
