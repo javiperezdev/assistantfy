@@ -10,17 +10,21 @@ from zoneinfo import ZoneInfo
 from app.services.client_service import search_client_by_phone_number
 from sqlalchemy.ext.asyncio import AsyncSession
 
-async def cancel_appointment_workflow(session: AsyncSession, appointment_id: int, client_phone_number: str):
-    client = await search_client_by_phone_number(client_phone_number, session)
+async def cancel_appointment_workflow(session: AsyncSession, appointment_id: int, client_phone_number: str, business_id: int):
+    client = await search_client_by_phone_number(client_phone_number, business_id, session)
     if not client:
         return {"status": "error", "message": "Client not found."}
 
     # Check appointments
-    appointment = await session.get(Appointment, appointment_id)
+    appointment_statement = select(Appointment).where(
+        Appointment.id == appointment_id,
+        Appointment.business_id == business_id
+    )
+    appointment = (await session.exec(appointment_statement)).first()
     if not appointment:
         return {"status": "error", "message": "Appointment not found."}
 
-    # Safety check 
+    # If another client tries to cancel the appointment, we should not allow it
     if appointment.client_id != client.id:
         return {"status": "error", "message": "This appointment does not belong to you or you do not have permission to cancel it."}
 

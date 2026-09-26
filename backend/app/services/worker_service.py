@@ -55,6 +55,7 @@ async def get_first_available_worker(session: AsyncSession, service_id: int, sta
 
     # Subquery to know if he has another appointment at the same time 
     overlapping_appointment = select(Appointment.id).where(
+        Appointment.business_id == business_id,
         Appointment.worker_id == WorkerService.worker_id,
         Appointment.start_time < end_time,
         Appointment.end_time > start_time

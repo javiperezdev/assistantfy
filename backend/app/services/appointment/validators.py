@@ -21,26 +21,23 @@ async def validate_appointment_creation(session: AsyncSession, business_id: int,
         return {"status": "error", "message": "You cannot book an appointment in the past."}
 
     # 1. Validate Service
-    service = await get_service_by_id(session, service_id)
+    service = await get_service_by_id(session, service_id, business_id)
     if not service:
         return {"status": "error", "message": "The service does not exist."}
     
-    if service.business_id != business_id:
-        return {"status": "error", "message": "The service does not belong to the business."}
-
     # 2. Validate Worker
-    worker_statement = select(Worker).where(Worker.id == worker_id, Worker.is_active == True)
+    worker_statement = select(Worker).where(
+        Worker.id == worker_id, Worker.business_id == business_id, Worker.is_active == True
+    )
     worker = (await session.exec(worker_statement)).first()
     if not worker:
         return {"status": "error", "message": "The worker does not exist."}
         
-    if worker.business_id != business_id:
-        return {"status": "error", "message": "The worker does not belong to the business."}
-
     # 3. Validate Worker-Service Association
     worker_service_statement = select(WorkerService).where(
         WorkerService.worker_id == worker_id,
-        WorkerService.service_id == service_id
+        WorkerService.service_id == service_id,
+        WorkerService.business_id == business_id
     )
     worker_service = (await session.exec(worker_service_statement)).first()
     if not worker_service:

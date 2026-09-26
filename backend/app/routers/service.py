@@ -16,8 +16,8 @@ async def create_new_service(business_id: int, service_name: str, price: int, du
     return service
 
 @router.delete("/service", status_code=status.HTTP_200_OK)
-async def remove_service(id: int, session: AsyncSession = Depends(get_session)):
-    service = await delete_service(session=session, id=id)
+async def remove_service(business_id: int, id: int, session: AsyncSession = Depends(get_session)):
+    service = await delete_service(session=session, id=id, business_id=business_id)
     if service is None:
         raise HTTPException(status_code=404, detail="Service not found")
     return {"name": service.name}

@@ -18,7 +18,8 @@ class CancelAppointmentTool(BaseTool):
         return await cancel_appointment_workflow(
             session=session,
             appointment_id=validated_args.appointment_id,
-            client_phone_number=context.client_phone_number
+            client_phone_number=context.client_phone_number,
+            business_id=context.business_id
         )
 
 register_tool(CancelAppointmentTool())

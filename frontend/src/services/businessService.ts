@@ -21,5 +21,5 @@ export async function updateBusinessHours(id: number, day_of_week: number, start
 }
 
 export async function deleteBusinessHours(id: number): Promise<void> {
-    await apiClient.delete(`/business-hours?id=${id}`);
+    await apiClient.delete(`/business-hours?business_id=1&id=${id}`);
 }

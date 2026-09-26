@@ -4,13 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 
-async def search_client_by_phone_number(phone_number: str, session: AsyncSession):
+async def search_client_by_phone_number(phone_number: str, business_id: int, session: AsyncSession):
     '''
     search_client_by_phone_number is in charge of obtaining clients 
     by phone number the reason of returning the first is
-    due to this query can return one row as most, as phone_number is unique
+    due to this query can return one row as most, as a phone number
+    is unique within a business
     '''
-    statement = select(Client).where(Client.phone_number == phone_number)
+    statement = select(Client).where(Client.phone_number == phone_number, Client.business_id == business_id)
     result = await session.exec(statement)
     return result.first()
 

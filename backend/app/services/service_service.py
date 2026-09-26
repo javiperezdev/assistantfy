@@ -2,13 +2,13 @@ from app.models import Service
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-async def get_time_from_service(service_id: int, session: AsyncSession):
-    statement = select(Service.duration_minutes).where(Service.id == service_id)
+async def get_time_from_service(service_id: int, business_id: int, session: AsyncSession):
+    statement = select(Service.duration_minutes).where(Service.id == service_id, Service.business_id == business_id)
     result = await session.exec(statement)
     return result.first()
 
-async def get_service_by_id(session: AsyncSession, id: int):
-    statement = select(Service).where(Service.id == id)
+async def get_service_by_id(session: AsyncSession, id: int, business_id: int):
+    statement = select(Service).where(Service.id == id, Service.business_id == business_id)
     result = await session.exec(statement)
     return result.first()
 
@@ -48,8 +48,8 @@ async def get_services_catalog(business_id: int, session: AsyncSession):
     - Use the numerical ID from the catalog when calling the tool.
     """
 
-async def delete_service(session: AsyncSession, id: int):
-    service = await get_service_by_id(session=session, id=id)
+async def delete_service(session: AsyncSession, id: int, business_id: int):
+    service = await get_service_by_id(session=session, id=id, business_id=business_id)
     if service:
         await session.delete(service)
         await session.commit()

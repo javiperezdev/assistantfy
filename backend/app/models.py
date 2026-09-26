@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel, Index
+from sqlmodel import Field, SQLModel, Index, UniqueConstraint
 from datetime import datetime, time
 from enum import Enum
 
@@ -17,9 +17,12 @@ class BusinessHours(SQLModel, table=True):
     is_active: bool = Field(default=True)
 
 class Client(SQLModel, table=True):
+    # A phone number is unique per business, not globally: the same person can be a
+    # client of two different businesses.
+    __table_args__ = (UniqueConstraint("business_id", "phone_number", name="uq_client_business_phone"),)
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
-    phone_number: str = Field(unique=True)
+    phone_number: str = Field(index=True)
     name: str | None = None 
 
 class Service(SQLModel, table=True):
@@ -60,10 +63,6 @@ class Appointment(SQLModel, table=True):
     would be doing searches with them, and a barbershop won't have thousands of inserts daily, so it is really
     cost-effective architectural decision
     '''
-    __tablename__ = "appointment"
-    __tableargs__ = (
-        Index("ix_appointment_dates", "start_datetime", "end_datetime")
-    )
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
     service_id: int = Field(foreign_key="service.id")

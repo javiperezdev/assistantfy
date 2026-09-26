@@ -26,7 +26,7 @@ class GetAvailableSlotsTool(BaseTool):
         if not business:
             return {"status" : "error", "message" : "The entered ID is not attached to any business."}
         
-        service = await get_service_by_id(session, validated_args.service_id)
+        service = await get_service_by_id(session, validated_args.service_id, context.business_id)
         print(f"Service_id = {validated_args.service_id}")
         if not service:
             return {"status" : "error", "message" : "The service does not exist."}

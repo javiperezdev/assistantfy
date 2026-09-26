@@ -12,6 +12,6 @@ export async function createService(name: string, price: number, duration_minute
 }
 
 export async function deleteService(id: number): Promise<{ name: string }> {
-    const response = await apiClient.delete(`/service?id=${id}`);
+    const response = await apiClient.delete(`/service?business_id=1&id=${id}`);
     return response.data;
 }

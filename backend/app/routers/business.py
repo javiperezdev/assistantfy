@@ -20,8 +20,8 @@ async def add_hours(business_id: int, day_of_week: int, start_time: time, end_ti
 
 
 @router.delete("/business-hours", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_hours(id: int, session: AsyncSession = Depends(get_session)):
-    hours = await delete_business_hours(id, session)
+async def remove_hours(business_id: int, id: int, session: AsyncSession = Depends(get_session)):
+    hours = await delete_business_hours(id, business_id, session)
     if not hours:
         raise HTTPException(status_code=404, detail="Business hours not found")
 

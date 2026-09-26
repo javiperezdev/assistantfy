@@ -19,6 +19,7 @@ async def get_client_appointments(session: AsyncSession, client_phone_number: st
     statement = (
         select(Appointment)
         .join(Client)
+        .where(Appointment.business_id == business_id)
         .where(Client.business_id == business_id)
         .where(Client.phone_number == client_phone_number)
         .where(Appointment.start_time >= now)

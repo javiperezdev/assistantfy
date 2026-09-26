@@ -35,3 +35,15 @@ async def db_session():
         yield session
         await session.rollback()
         await test_engine.dispose()
+
+@pytest.fixture
+async def two_businesses(db_session):
+    # Two tenants, ready to use: tests checking that queries never cross the
+    # tenant boundary unpack this instead of seeding their own businesses.
+    business_a = Business(phone_number="311", name="Business A", timezone="UTC")
+    business_b = Business(phone_number="322", name="Business B", timezone="UTC")
+    db_session.add_all([business_a, business_b])
+    await db_session.commit()
+    await db_session.refresh(business_a)
+    await db_session.refresh(business_b)
+    return business_a, business_b
