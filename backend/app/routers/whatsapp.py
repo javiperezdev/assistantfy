@@ -43,6 +43,10 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
         business_id = await get_id_by_phone_number(session, business_phone_number)
         message = value.messages
         if message is not None:
+            if message.text is None:
+                logger.info("Incoming msg | business=%s client=%s content=%.100s", business_id, client_phone_number, "No text content")
+                await send_message(client_phone_number, "You can only send text messages!", request.state.httpx_client)
+                return {"status": "ok"} # Service won't allow non-text messages, so we return here to avoid further processing.
             content = message[0].text.body
             client_phone_number = message[0].phone_number
 
