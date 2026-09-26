@@ -77,7 +77,7 @@ async def generate_response(
     # Context for the ReAct loop -> (Reason -> Act)
     conversation = [ 
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": json.dumps(context, ensure_ascii=False)}
+        *context # unpacking the list
     ]
     
     max_turns = 5
@@ -104,7 +104,7 @@ async def generate_response(
             logger.info("AI answer | phone=%s turn=%d tokens=%d finish=%s content=%.100s",
                         client_phone_number, current_turns, tokens, finish, message.content or "")
             context.append({"role": "assistant", "content": message.content})
-            await add_to_context(client_phone_number, context)
+            await add_to_context(client_phone_number, {"role": "assistant", "content": message.content}, business_id)
             await send_message(client_phone_number, message.content, httpx_client)
             return 
 

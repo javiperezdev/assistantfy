@@ -43,7 +43,7 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
         business_id = await get_id_by_phone_number(session, business_phone_number)
         message = value.messages
         if message is not None:
-            if message.text is None:
+            if message[0].text is None:
                 logger.info("Incoming msg | business=%s client=%s content=%.100s", business_id, client_phone_number, "No text content")
                 await send_message(client_phone_number, "You can only send text messages!", request.state.httpx_client)
                 return {"status": "ok"} # Service won't allow non-text messages, so we return here to avoid further processing.
@@ -60,7 +60,7 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
                 
             system_prompt = await generate_system_prompt(session, business_id)
 
-            context = await get_context(client_phone_number)
+            context = await get_context(client_phone_number, business_id)
             context.append({"role": "user", "content": content})
             logger.info("Offloading AI | client=%s", client_phone_number)
             background_tasks.add_task(generate_response, client_phone_number, context, request.state.httpx_client, request.state.ai_client, system_prompt, business_id, session)
