@@ -8,14 +8,15 @@ import type { Worker, WorkerHours } from '../../../types/worker';
 
 interface EditWorkerHoursFormProps {
     worker: Worker;
-    initialHours: WorkerHours[];
+    initialHours: WorkerHours[] | undefined; // They can be undefined if they are still not loaded from the backend.
     onClose: () => void;
     onSave: (hours: WorkerHours[]) => void;
 }
 
 export function EditWorkerHoursForm({ worker, initialHours, onClose, onSave }: EditWorkerHoursFormProps) {
-    const [hours, setHours] = useState<WorkerHours[]>(initialHours);
-
+    const [hours, setHours] = useState<WorkerHours[]>(initialHours ?? []);
+    console.log("hours", hours);
+    console.log("initialHours", initialHours);
     const handleToggleDay = (day: DayOfWeekValue) => setHours(prev =>
         prev.some(h => h.day_of_week === day)
             ? prev.filter(h => h.day_of_week !== day)

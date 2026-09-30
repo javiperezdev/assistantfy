@@ -16,4 +16,4 @@ export async function addWorker(name: string): Promise<Worker> {
 export async function deleteWorker(id: number): Promise<Worker> {
     const response = await apiClient.delete(`/worker?business_id=1&worker_id=${id}`);
     return response.data;
-} 
+}

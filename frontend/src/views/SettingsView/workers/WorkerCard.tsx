@@ -7,7 +7,7 @@ import { SettingsCard } from '../../../components/SettingsCard';
 
 
 export interface WorkersCardProps {
-    workerList: Worker[];
+    workerList: Worker[] | undefined;
     onDeleteWorker: (id: number) => void;
     onAddWorker: () => void;
     onEditHours: (worker: Worker) => void;
@@ -26,7 +26,7 @@ export function WorkerCard({ workerList, onDeleteWorker, onAddWorker, onEditHour
     return (
         <SettingsCard title="Workers" action={addWorkerButton}>
             <div className="space-y-3">
-                {workerList.map((worker) => (
+                {workerList?.map((worker) => (
                 <div key={worker.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-100 rounded-xl">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-semibold text-sm">
@@ -41,11 +41,12 @@ export function WorkerCard({ workerList, onDeleteWorker, onAddWorker, onEditHour
                         <Button onClick={() => worker.id !== undefined && onDeleteWorker(worker.id)} infoMessage={`Delete ${worker.name}`} variant='minimal'> <Trash /></Button>
                     </div>
                 </div>))}
-                {workerList.length === 0 && (
+                {(workerList === undefined || workerList.length === 0) && (
                     <div className="text-center py-6 text-blue-400 font-medium">
                         No workers registered yet. Click 'Add new worker'.
                     </div>
                 )}
+
             </div>
         </SettingsCard>
     );

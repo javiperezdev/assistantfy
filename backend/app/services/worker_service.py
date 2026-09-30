@@ -16,24 +16,6 @@ async def get_workers_by_service(session: AsyncSession, service_id: int, busines
     result = (await session.exec(statement)).all()
     return result
 
-async def get_all_worker_hours(session: AsyncSession, worker_ids: list[int], day_of_week: int, business_id: int):
-    '''
-    Method that returns workers requested from a list containing their ids 
-    for an specific day of the week, filtered by business
-    '''
-    statement = (
-        select(WorkerHours)
-        .join(Worker, WorkerHours.worker_id == Worker.id)
-        .where(
-            WorkerHours.worker_id.in_(worker_ids),
-            WorkerHours.day_of_week == day_of_week,
-            Worker.business_id == business_id,
-            Worker.is_active == True
-        )
-    )
-    result = await session.exec(statement)
-    return result.all()
-
 def group_by_workers(objects_list: list[WorkerHours] | list[Appointment]):
     """
     Groups all the appointment/workerHours by worker id (example: {1: ["10:00"], 2: ["11:00", "12:00"]})

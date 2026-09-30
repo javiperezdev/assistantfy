@@ -2,7 +2,8 @@ from sqlmodel import select
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from app.models import Appointment, AppointmentState, Client
-from app.services.worker_service import get_all_worker_hours, group_by_workers
+from app.services.worker_service import group_by_workers
+from app.services.worker_hours_service import get_all_worker_hours
 from app.services.business_service import get_business_by_id
 from app.services.appointment.calculator import subtract_sets, hide_past_slots
 from sqlalchemy.ext.asyncio import AsyncSession

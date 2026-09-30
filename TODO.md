@@ -1,23 +1,18 @@
 # 🎯 FOCUS
-2. business_id + phone_number Redis isolation
+ - Currently implementing the functionality to see the worker hours for each worker. It happened a problem because I have  strange methods that I think I am going to refactor and my backend gives "09:00:00" and this methods accept "09:00" to do their conversion.
 ---
 
 # 🧠 BRAIN DUMP
 - *Priority*
 1. Redis context structure
 4. WorkerHours actually being persisted
-5. long-message return bug
 6. webhook payload validation
 7. duplicate webhook/idempotency
-
 - Investigar como crear rutas privadas para usuarios loggeados
 - style 404 page
 - Fix bug when business isnt introduced in the database
-- Create functionality to manage workerHours from the frontend (also develop endpoints in the backend)
 - Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
-
-
 
 - Security and integrity
 8. authentication
@@ -37,6 +32,8 @@ Improve architecture as the project grows
 ---
 
 # ✅ WINS
+- [x] long-message return bug
+- [x] business_id + phone_number Redis isolation
 - [x] when a message arrives I should check if it isn't text so I would answer that the format is not supported try sending a text message...
 - [x] Check how are workers being assigned for each task
 - [x] add business_id to all queries to ensure multitenancy

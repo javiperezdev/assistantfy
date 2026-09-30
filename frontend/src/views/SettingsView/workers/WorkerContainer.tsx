@@ -7,13 +7,14 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 import { EditWorkerHoursForm } from './EditWorkerHoursForm';
 import type { Worker, WorkerHours } from '../../../types/worker';
 import { useCreateWorker, useDeleteWorker, useWorkers } from '../../../hooks/useWorkers';
+import { useWorkerHours } from '../../../hooks/useWorkerHours';
 
 export function WorkerContainer() {
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
-    const [hoursWorker, setHoursWorker] = useState<Worker | null>(null);
     // Mockup: hours live in local state until the backend exposes worker-hours endpoints
-    const [hoursByWorker, setHoursByWorker] = useState<Record<number, WorkerHours[]>>({});
+    const [worker, setWorker] = useState<Worker | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const { data: hours, isPending : isHoursPending, isError: isHoursError, refetch: hoursRefetch } = useWorkerHours(worker);    
     const {mutate: deleteWorker} = useDeleteWorker();
     const {mutate: createWorker} = useCreateWorker();
 
@@ -52,38 +53,37 @@ export function WorkerContainer() {
     }
 
     const handleSaveHours = (hours: WorkerHours[]) => {
-        if (!hoursWorker) return;
+        if (!hours) return;
         if (hours.some(h => h.start_time >= h.end_time)) {
             setToast({message:"Start time must be before end time", type:"error"});
             return;
         }
-        setHoursByWorker(prev => ({ ...prev, [hoursWorker.id!]: hours }));
-        setHoursWorker(null);
+        setWorker(null);
         setToast({message:"Working hours saved! (mock)", type:"success"});
     }
 
-    const { data: workers, isPending, isError, refetch } = useWorkers();
+    const { data: workers, isPending : isWorkerPending, isError: isWorkerError, refetch: workerRefetch } = useWorkers();
 
-    if (isPending) return <LoadingSpinner message="Loading workers..." size="md" />;
-    if (isError) return <ErrorMessage fullPage message="We couldn't load the workers. Please try again." onRetry={() => refetch()} />;
+    if (isWorkerPending) return <LoadingSpinner message="Loading workers..." size="md" />;
+    if (isWorkerError) return <ErrorMessage fullPage message="We couldn't load the workers. Please try again." onRetry={() => workerRefetch()} />;
     
     return (
         <>
             <WorkerCard
-                workerList={workers} 
+                workerList={workers}    
                 onDeleteWorker={handleDeleteWorker}
                 onAddWorker={handleAddWorker}
-                onEditHours={setHoursWorker}
+                onEditHours={setWorker}
             />
 
             {isPopUpOpen && (
                 <AddWorkerForm onClose={() => setIsPopUpOpen(false)} onSave={(handleSaveWorker)} />)}
 
-            {hoursWorker && (
+            {worker && hours && (
                 <EditWorkerHoursForm
-                    worker={hoursWorker}
-                    initialHours={hoursByWorker[hoursWorker.id!] ?? []}
-                    onClose={() => setHoursWorker(null)}
+                    worker={worker}
+                    initialHours={hours}
+                    onClose={() => setWorker(null)}
                     onSave={handleSaveHours}
                 />)}
         
