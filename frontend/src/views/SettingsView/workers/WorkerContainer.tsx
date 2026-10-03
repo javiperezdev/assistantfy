@@ -7,7 +7,7 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 import { EditWorkerHoursForm } from './EditWorkerHoursForm';
 import type { Worker, WorkerHours } from '../../../types/worker';
 import { useCreateWorker, useDeleteWorker, useWorkers } from '../../../hooks/useWorkers';
-import { useWorkerHours } from '../../../hooks/useWorkerHours';
+import { useDeleteWorkerHours, useWorkerHours } from '../../../hooks/useWorkerHours';
 
 export function WorkerContainer() {
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
@@ -15,11 +15,12 @@ export function WorkerContainer() {
     const [worker, setWorker] = useState<Worker | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const { data: hours, isPending : isHoursPending, isError: isHoursError, refetch: hoursRefetch } = useWorkerHours(worker);    
+    const {mutateAsync: deleteWorkerHours} = useDeleteWorkerHours(); // Used mutateAsync to give back a promise and be able to know when the deletion is finished and then change the state of the worker hours list or display an error.
     const {mutate: deleteWorker} = useDeleteWorker();
     const {mutate: createWorker} = useCreateWorker();
 
 
-    const handleDeleteWorker = async (id: number) => {
+    const handleDeleteWorker = (id: number) => {
         deleteWorker(id, {
             onSuccess: () => {
                 setToast({message:"Worker deleted succesfully!", type:"success"});
@@ -35,7 +36,7 @@ export function WorkerContainer() {
        setIsPopUpOpen(true);
     }
 
-    const handleSaveWorker = async (workerName: string) => {
+    const handleSaveWorker = (workerName: string) => {
         if (workerName !== "") {
             createWorker(workerName, {
                 onSuccess: () => {
@@ -50,6 +51,17 @@ export function WorkerContainer() {
             setToast({message:"Worker name cannot be empty!", type:"error"})
         }
         setIsPopUpOpen(false)
+    }
+
+    const handleDeleteHours = (workerHours: WorkerHours) : Promise<void> => {
+        return deleteWorkerHours(workerHours, {
+            onSuccess: () => {
+                setToast({message:"Worker hours deleted succesfully!", type:"success"});
+            },
+            onError: () => {
+                setToast({message:"Error occurred when deleting worker hours!", type:"error"});
+            }
+        })
     }
 
     const handleSaveHours = (hours: WorkerHours[]) => {
@@ -85,6 +97,7 @@ export function WorkerContainer() {
                     initialHours={hours}
                     onClose={() => setWorker(null)}
                     onSave={handleSaveHours}
+                    onDeleteHour={handleDeleteHours}
                 />)}
         
             {toast && (

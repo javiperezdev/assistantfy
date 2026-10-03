@@ -24,7 +24,7 @@ export function useCreateBusinessHours() {
 export function useUpdateBusinessHour() {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: (businessHours: BusinessHours) => updateBusinessHours(businessHours.id, businessHours.day_of_week, businessHours.start_time, businessHours.end_time), 
+        mutationFn: (businessHours: BusinessHours) => updateBusinessHours(businessHours.id!, businessHours.day_of_week, businessHours.start_time, businessHours.end_time), 
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["business-hour"]

@@ -11,3 +11,9 @@ export async function getWorkerHours(workerId: number): Promise<WorkerHours[]> {
             end_time: h.end_time.slice(0, 5),
         }));
 }
+
+export async function deleteWorkerHours(workerHoursId: number, workerId: number): Promise<void> {
+    await apiClient.delete(`/worker-hours?id=${workerHoursId}&worker_id=${workerId}&business_id=1`);
+}
+
+

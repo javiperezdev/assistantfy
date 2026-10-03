@@ -4,6 +4,7 @@
 
 # 🧠 BRAIN DUMP
 - *Priority*
+- delete is_active from db for workerHours and its toggle
 1. Redis context structure
 4. WorkerHours actually being persisted
 6. webhook payload validation

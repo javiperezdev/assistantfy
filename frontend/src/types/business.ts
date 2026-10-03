@@ -1,5 +1,5 @@
 export interface Business {
-    id?: number;
+    id: number;
     phone_number: string;
     name: string;
     timezone: string;

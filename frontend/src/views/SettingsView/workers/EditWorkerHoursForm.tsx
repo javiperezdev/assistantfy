@@ -11,12 +11,11 @@ interface EditWorkerHoursFormProps {
     initialHours: WorkerHours[] | undefined; // They can be undefined if they are still not loaded from the backend.
     onClose: () => void;
     onSave: (hours: WorkerHours[]) => void;
+    onDeleteHour: (workerHours: WorkerHours) => Promise<void>;
 }
 
-export function EditWorkerHoursForm({ worker, initialHours, onClose, onSave }: EditWorkerHoursFormProps) {
+export function EditWorkerHoursForm({ worker, initialHours, onClose, onSave, onDeleteHour }: EditWorkerHoursFormProps) {
     const [hours, setHours] = useState<WorkerHours[]>(initialHours ?? []);
-    console.log("hours", hours);
-    console.log("initialHours", initialHours);
     const handleToggleDay = (day: DayOfWeekValue) => setHours(prev =>
         prev.some(h => h.day_of_week === day)
             ? prev.filter(h => h.day_of_week !== day)
@@ -30,6 +29,21 @@ export function EditWorkerHoursForm({ worker, initialHours, onClose, onSave }: E
         return [...prev, { worker_id: worker.id ?? 0, day_of_week: day, start_time: start, end_time }];
     });
 
+        /* Function is async because I want to know when it's finished.
+        * So I can change the state of the worker hours
+        */
+        const handleRemoveSlot = async (slot: DaySlot) => { 
+            const workerHour : WorkerHours = {
+                ...slot,
+                worker_id: worker.id! 
+            }
+            try {
+                await onDeleteHour(workerHour);
+                setHours(prev => prev.filter(h => h !== slot));
+            } catch (error) {
+                console.error("Error deleting worker hours:", error);
+            }
+        }
     return (
         <PopUpTemplate title={`Working hours - ${worker.name}`} onClose={onClose}>
             <div className="max-h-[60vh] overflow-y-auto pr-1">
@@ -39,7 +53,7 @@ export function EditWorkerHoursForm({ worker, initialHours, onClose, onSave }: E
                     onSlotChange={(slot: DaySlot, start_time, end_time) =>
                         setHours(prev => prev.map(h => h === (slot as WorkerHours) ? { ...h, start_time, end_time } : h))}
                     onAddSlot={handleAddSlot}
-                    onRemoveSlot={(slot) => setHours(prev => prev.filter(h => h !== (slot as WorkerHours)))}
+                    onRemoveSlot={handleRemoveSlot}
                 />
             </div>
             <Button onClick={() => onSave(hours)} infoMessage={`Save ${worker.name} working hours`}>

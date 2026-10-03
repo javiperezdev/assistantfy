@@ -16,7 +16,7 @@ export function BusinessHoursCard({ hoursList, onUpdateSlot, onToggleDay, onAddS
             <HoursDayList
                 slots={hoursList}
                 onToggleDay={onToggleDay}
-                // id! always present from API; BusinessHours.id is typed optional speculatively
+                // id! always present from API
                 onSlotChange={(slot, startTime, endTime) => onUpdateSlot(slot.id!, startTime, endTime)}
                 onAddSlot={onAddSlot}
                 onRemoveSlot={(slot) => onRemoveSlot(slot.id!)}
