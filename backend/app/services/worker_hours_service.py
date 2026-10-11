@@ -1,5 +1,5 @@
 from datetime import time
-from sqlmodel import select
+from sqlmodel import select, update
 from app.models import Worker, WorkerHours
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +28,7 @@ async def get_worker_hours(worker_id: int, business_id: int, session: AsyncSessi
     statement = (
         select(WorkerHours)
         .join(Worker, WorkerHours.worker_id == Worker.id)
-        .where(WorkerHours.worker_id == worker_id, Worker.business_id == business_id)
+        .where(WorkerHours.worker_id == worker_id, Worker.business_id == business_id, WorkerHours.is_active == True)
         .order_by(WorkerHours.day_of_week, WorkerHours.start_time)
     )
     result = await session.exec(statement)
@@ -96,3 +96,36 @@ async def delete_worker_hour(id: int, worker_id: int, business_id: int, session:
     await session.delete(hour)
     await session.commit()
     return hour
+
+
+async def toggle_day(worker_id: int, business_id: int, day_of_week: int, is_active: bool, session: AsyncSession): 
+    '''
+    Method that toggles the is_active field of a worker's hours for a specific day of the week.
+    If no record exists for the given day, it creates a new one with is_active set to True. 
+    '''
+    statement = (
+        update(WorkerHours)
+        .where(
+            WorkerHours.worker_id == worker_id,
+            WorkerHours.day_of_week == day_of_week,
+            # aquí también tu condición de business si corresponde
+        )
+        .values(is_active=is_active)
+    )
+
+    result = await session.exec(statement)
+
+    if not result.rowcount:  # No rows were updated, meaning no record exists for the given day
+        # If no record exists for the given day, create a new one with is_active set to True (In the future we may create a method for this, but for now we will create it here)
+        hour = WorkerHours(worker_id=worker_id, business_id=business_id, day_of_week=day_of_week, start_time=time(9, 0, 0), end_time=time(17, 0, 0), is_active=True)
+        session.add(hour)
+        await session.commit()
+        await session.refresh(hour)
+        return hour
+
+    await session.commit()
+    return result.rowcount
+
+
+
+

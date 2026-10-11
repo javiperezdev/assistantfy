@@ -1,10 +1,10 @@
 # 🎯 FOCUS
- - Currently implementing the functionality to see the worker hours for each worker. It happened a problem because I have  strange methods that I think I am going to refactor and my backend gives "09:00:00" and this methods accept "09:00" to do their conversion.
+
 ---
 
 # 🧠 BRAIN DUMP
-- *Priority*
-- delete is_active from db for workerHours and its toggle
+- **Priority**
+- Before testing backend introduce all the seed data
 1. Redis context structure
 4. WorkerHours actually being persisted
 6. webhook payload validation
@@ -14,6 +14,7 @@
 - Fix bug when business isnt introduced in the database
 - Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
+- Fix bug when toggling day failing and showing that added correctly
 
 - Security and integrity
 8. authentication
@@ -33,6 +34,10 @@ Improve architecture as the project grows
 ---
 
 # ✅ WINS
+- [x] Fix bug when toggling BusinessHours data inside it erases
+- [x] Fix bug when toggling a day, that doesn't turns off. Although network says it's okey it doesn't update the database.
+- [x] Create worker hours from the frontend (maybe I should change the toggle thing before, we would investigate it)
+ - [x] Currently implementing the functionality to see the worker hours for each worker. It happened a problem because I have  strange methods that I think I am going to refactor and my backend gives "09:00:00" and this methods accept "09:00" to do their conversion.
 - [x] long-message return bug
 - [x] business_id + phone_number Redis isolation
 - [x] when a message arrives I should check if it isn't text so I would answer that the format is not supported try sending a text message...

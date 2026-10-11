@@ -7,17 +7,19 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 import { EditWorkerHoursForm } from './EditWorkerHoursForm';
 import type { Worker, WorkerHours } from '../../../types/worker';
 import { useCreateWorker, useDeleteWorker, useWorkers } from '../../../hooks/useWorkers';
-import { useDeleteWorkerHours, useWorkerHours } from '../../../hooks/useWorkerHours';
+import { useCreateWorkerHours, useDeleteWorkerHours, usePatchWorkerHoursDay, useUpdateWorkerHours, useWorkerHours } from '../../../hooks/useWorkerHours';
 
 export function WorkerContainer() {
     const [isPopUpOpen, setIsPopUpOpen] = useState<boolean>(false);
-    // Mockup: hours live in local state until the backend exposes worker-hours endpoints
     const [worker, setWorker] = useState<Worker | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const { data: hours, isPending : isHoursPending, isError: isHoursError, refetch: hoursRefetch } = useWorkerHours(worker);    
-    const {mutateAsync: deleteWorkerHours} = useDeleteWorkerHours(); // Used mutateAsync to give back a promise and be able to know when the deletion is finished and then change the state of the worker hours list or display an error.
+    const { data: hours} = useWorkerHours(worker);    
+    const {mutate: deleteWorkerHours} = useDeleteWorkerHours(); 
     const {mutate: deleteWorker} = useDeleteWorker();
     const {mutate: createWorker} = useCreateWorker();
+    const {mutate: createWorkerHours} = useCreateWorkerHours();
+    const {mutate: patchWorkerHoursDay} = usePatchWorkerHoursDay();
+    const {mutate: updateWorkerHours} = useUpdateWorkerHours();
 
 
     const handleDeleteWorker = (id: number) => {
@@ -53,7 +55,7 @@ export function WorkerContainer() {
         setIsPopUpOpen(false)
     }
 
-    const handleDeleteHours = (workerHours: WorkerHours) : Promise<void> => {
+    const handleDeleteHours = (workerHours: WorkerHours) => {
         return deleteWorkerHours(workerHours, {
             onSuccess: () => {
                 setToast({message:"Worker hours deleted succesfully!", type:"success"});
@@ -64,14 +66,42 @@ export function WorkerContainer() {
         })
     }
 
-    const handleSaveHours = (hours: WorkerHours[]) => {
-        if (!hours) return;
-        if (hours.some(h => h.start_time >= h.end_time)) {
-            setToast({message:"Start time must be before end time", type:"error"});
+    const handleAddHour = (hour: WorkerHours) => {
+        if (!hour) return
+        createWorkerHours(hour, {
+            onSuccess: () => {
+                setToast({message:"Working hours added!", type:"success"})
+            },
+            onError: () => {
+                setToast({message:"Error occurred when adding working hours!", type:"error"})
+            }
+        })
+    }
+
+    const handleToggleDay = (workerHour: WorkerHours) => {
+        patchWorkerHoursDay(workerHour, {
+            onSuccess: () => {
+                setToast({message:"Working hours updated!", type:"success"})
+            },
+            onError: () => {
+                setToast({message:"Error occurred when updating working hours!", type:"error"})
+            }
+        })
+    }
+
+    const handleUpdateHour = (workerHour: WorkerHours) => {
+        if (workerHour.start_time >= workerHour.end_time) {
+            setToast({ message: "Start time must be before end time", type: "error" });
             return;
         }
-        setWorker(null);
-        setToast({message:"Working hours saved! (mock)", type:"success"});
+        updateWorkerHours(workerHour, {
+            onSuccess: () => {
+                setToast({message:"Working hours updated!", type:"success"})
+            },
+            onError: () => {
+                setToast({message:"Error occurred when updating working hours!", type:"error"})
+            }
+        })
     }
 
     const { data: workers, isPending : isWorkerPending, isError: isWorkerError, refetch: workerRefetch } = useWorkers();
@@ -91,13 +121,15 @@ export function WorkerContainer() {
             {isPopUpOpen && (
                 <AddWorkerForm onClose={() => setIsPopUpOpen(false)} onSave={(handleSaveWorker)} />)}
 
-            {worker && hours && (
+            {worker && hours && ( // As we mount the EditWorkerHoursForm only when we have a worker and hours, we avoid the error of trying to access hours when they are undefined.
                 <EditWorkerHoursForm
                     worker={worker}
-                    initialHours={hours}
+                    initialHours={hours ?? []}
                     onClose={() => setWorker(null)}
-                    onSave={handleSaveHours}
+                    onCreateHour={handleAddHour}
                     onDeleteHour={handleDeleteHours}
+                    onToggleDay={handleToggleDay}
+                    onUpdateHour={handleUpdateHour}
                 />)}
         
             {toast && (

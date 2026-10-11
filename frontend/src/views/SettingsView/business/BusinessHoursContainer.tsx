@@ -36,8 +36,8 @@ export function BusinessHoursContainer() {
         updateBusinessHour({ ...slot, start_time: startTime, end_time: endTime }, {
             onSuccess: () => onSuccess("Business hours updated"),
             onError,
-        });
-    };
+        })
+    }
 
     const handleToggleDay = (dayOfWeek: DayOfWeekValue) => {
         const daySlots = hours?.filter(h => h.day_of_week === dayOfWeek) ?? [];

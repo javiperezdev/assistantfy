@@ -16,4 +16,15 @@ export async function deleteWorkerHours(workerHoursId: number, workerId: number)
     await apiClient.delete(`/worker-hours?id=${workerHoursId}&worker_id=${workerId}&business_id=1`);
 }
 
+export async function createWorkerHour(workerId: number, dayOfWeek: number, start_time: string, end_time: string): Promise<void> {
+    await apiClient.post(`/worker-hours?worker_id=${workerId}&business_id=1&day_of_week=${dayOfWeek}&start_time=${start_time}&end_time=${end_time}`);
+}
+
+export async function patchWorkerHoursDay(workerId: number, dayOfWeek: number, isActive: boolean): Promise<void> {
+    await apiClient.patch(`/worker-hours/day?worker_id=${workerId}&business_id=1&day_of_week=${dayOfWeek}&is_active=${isActive}`);
+}
+
+export async function putWorkerHours(workerHoursId: number, workerId: number, dayOfWeek: number, start_time: string, end_time: string): Promise<void> {
+    await apiClient.put(`/worker-hours?id=${workerHoursId}&worker_id=${workerId}&business_id=1&day_of_week=${dayOfWeek}&start_time=${start_time}&end_time=${end_time}`);
+}
 
