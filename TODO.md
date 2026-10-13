@@ -3,10 +3,8 @@
 ---
 
 # 🧠 BRAIN DUMP
-- **Priority**
 - Before testing backend introduce all the seed data
 1. Redis context structure
-4. WorkerHours actually being persisted
 6. webhook payload validation
 7. duplicate webhook/idempotency
 - Investigar como crear rutas privadas para usuarios loggeados
@@ -15,6 +13,13 @@
 - Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
 - Fix bug when toggling day failing and showing that added correctly
+- Add functionality so business owner can modify his business information
+- Configurations may be aligned to the center horizontally in small devices
+- Appointments title should be inside a column with the button in small devices
+- Long names doesn't appear in the appointment (do some research)
+- Develop secondary buttons (needed for the navbar for example)
+- Check why are we getting "GET /health HTTP/1.1" 404 Not Found"
+
 
 - Security and integrity
 8. authentication
@@ -28,6 +33,7 @@ Improve architecture as the project grows
 15. data constraints
 16. better error handling
 17. better AI context management
+
 
 
        

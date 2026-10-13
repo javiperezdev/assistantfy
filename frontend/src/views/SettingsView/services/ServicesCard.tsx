@@ -48,7 +48,7 @@ export function ServicesCard({
                 {serviceList.map((service) => {
                     const id = service.id;
                     const safeWorkerList = workerList ?? [];
-                    const serviceWorkerIds = assignedWorkersMap?.[id] ?? [];
+                    const serviceWorkerIds = assignedWorkersMap?.[id!] ?? [];
                     const serviceWorkers = safeWorkerList.filter(w => w.id !== undefined && serviceWorkerIds.includes(w.id));
 
                     return (

@@ -14,8 +14,8 @@
 - **Secondary (Minimal Icon)**: `bg-transparent text-slate-400 hover:text-red-500 hover:bg-slate-100 p-2 rounded transition-all duration-200`
 
 ### Typography
-- **H1**: `text-2xl font-bold text-blue-950`
-- **H2**: `text-xl font-bold text-blue-950`
+- **H1**: `text-3xl font-bold text-blue-950`
+- **H2**: `text-2xl font-bold text-blue-950`
 - **H3**: `text-base font-semibold text-blue-950`
 - **Body**: `text-sm font-normal text-blue-800`
 

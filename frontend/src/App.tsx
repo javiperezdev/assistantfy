@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Dashboard } from './views/Dashboard/Dashboard';
+import { AppointmentsView } from './views/AppointmentsView/AppointmentsView';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SettingView } from './views/SettingsView/SettingView';
 import { NotFound } from './views/NotFound';
@@ -12,7 +12,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<NotFound />} />
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<AppointmentsView />} />
           <Route path="/settings" element={<SettingView />} />
         </Routes>  
       </BrowserRouter>
