@@ -1,16 +1,14 @@
 import { useMemo, useState } from "react";
-import type { Appointment } from "../../types/appointment";
+import { useAppointments } from "../../hooks/useAppointments";
 import { DateNavigation } from "./DateNavigation";
 import { AppointmentsFilters } from "./AppointmentsFilters";
 import { AppointmentList } from "./AppointmentList";
 
-// mocked data for demonstration purposes
-const FAKE_APPOINTMENTS: Appointment[] = [
-    { id: 1, client_name: "John Doe", worker_name: "Worker 1", service_name: "Haircut", duration_minutes: 45, start_time: "09:00", appointment_state: "BOOKED" },
-    { id: 2, client_name: "Pietro", worker_name: "Worker 2", service_name: "Beard trim", duration_minutes: 30, start_time: "09:30", appointment_state: "BOOKED" },
-    { id: 3, client_name: "Marie", worker_name: "Worker 1", service_name: "Haircut", duration_minutes: 45, start_time: "12:30", appointment_state: "COMPLETED" },
-    { id: 4, client_name: "Carlos", worker_name: "Worker 3", service_name: "Hair dye", duration_minutes: 90, start_time: "16:00", appointment_state: "CANCELLED" },
-];
+// Local date parts, not toISOString(): the latter is UTC and would shift the
+// day backwards for timezones behind UTC (e.g. "today" in Spain at 00:30).
+function toIsoDate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 export function AppointmentsContainer() {
     const [date, setDate] = useState(new Date());
@@ -18,21 +16,29 @@ export function AppointmentsContainer() {
     const [worker, setWorker] = useState("");
     const [status, setStatus] = useState("");
 
+    const { data: appointments = [] } = useAppointments(toIsoDate(date));
+
     const workers = useMemo(
-        () => [...new Set(FAKE_APPOINTMENTS.map((a) => a.worker_name))].sort(),
-        []
+        () => [...new Set(appointments.map((a) => a.worker_name))].sort(),
+        [appointments]
     );
 
+    /* search/worker/status filtering happens here in the browser
+    *  because a single day is a tiny dataset (at least for the business we will have in the MVP) 
+    *  this keeps typing instant.
+    *  The backend sends the whole day unfiltered (something that it has to do when appointment page is open, so it seems efficient).
+    */
+    
     const filteredAppointments = useMemo(() => {
         const query = search.trim().toLowerCase();
-        return FAKE_APPOINTMENTS
+        return appointments
             .filter((a) =>
                 a.client_name.toLowerCase().includes(query) &&
                 (worker === "" || a.worker_name === worker) &&
                 (status === "" || a.appointment_state === status)
             )
             .sort((a, b) => a.start_time.localeCompare(b.start_time));
-    }, [search, worker, status]);
+    }, [appointments, search, worker, status]);
     
     /*If you click previous or next day, 
     * this function will receive a delta of -1 or 1 respectively.

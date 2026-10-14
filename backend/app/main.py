@@ -3,7 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import whatsapp, worker, worker_service, worker_hours, service, business
+from .routers import whatsapp, worker, worker_service, worker_hours, service, business, appointment
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
@@ -37,6 +37,7 @@ app.include_router(worker_service.router, prefix="/API")
 app.include_router(worker_hours.router, prefix="/API")
 app.include_router(service.router, prefix="/API")
 app.include_router(business.router, prefix="/API")
+app.include_router(appointment.router, prefix="/API")
 
 origins = [
     settings.front_end_url

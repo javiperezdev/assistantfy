@@ -1,8 +1,10 @@
 # 🎯 FOCUS
-
+Develop get endpoint and service function in the backend for appointments and then connect with  the frontend
 ---
 
 # 🧠 BRAIN DUMP
+- Develop delete endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
+- Develop endpoints and service functions in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Before testing backend introduce all the seed data
 1. Redis context structure
 6. webhook payload validation
@@ -27,12 +29,15 @@
 10. password hashing
 11. business-scoped mutations
 12. Meta webhook signature validation
-Improve architecture as the project grows
+
+- Improve architecture as the project grows
 13. database migrations
 14. timezone model
 15. data constraints
 16. better error handling
 17. better AI context management
+- Problem of data consistency when data gets modified by AI with tools and not via mutations, for the moment I would just set a refetchInterval but in the future I have to do some research on websockets.
+- Research if composite index are worth it for appointment (start_time and end_time)
 
 
 
