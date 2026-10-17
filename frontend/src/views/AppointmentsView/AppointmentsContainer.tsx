@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
-import { useAppointments } from "../../hooks/useAppointments";
+import { useAppointments, useCreateAppointment, type CreateAppointmentInput } from "../../hooks/useAppointments";
 import { DateNavigation } from "./DateNavigation";
 import { AppointmentsFilters } from "./AppointmentsFilters";
 import { AppointmentList } from "./AppointmentList";
+import { AddAppointmentForm } from "./AddAppointmentForm";
+import { Button } from "../../components/Button";
+import { Toast } from "../../components/Toast";
 
 // Local date parts, not toISOString(): the latter is UTC and would shift the
 // day backwards for timezones behind UTC (e.g. "today" in Spain at 00:30).
@@ -15,8 +18,29 @@ export function AppointmentsContainer() {
     const [search, setSearch] = useState("");
     const [worker, setWorker] = useState("");
     const [status, setStatus] = useState("");
+    const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const { data: appointments = [] } = useAppointments(toIsoDate(date));
+    const { mutate: createAppointment } = useCreateAppointment();
+
+    const handleAddAppointment = (input: CreateAppointmentInput) => {
+        createAppointment(input, {
+            onSuccess: () => {
+                setToast({ message: "Appointment booked!", type: "success" });
+            },
+            onError: (error) => {
+                // The backend sends a human message as `detail` (slot taken,
+                // past time, worker can't do the service...) — show it verbatim.
+                const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+                setToast({
+                    message: typeof detail === "string" ? detail : "Could not book the appointment",
+                    type: "error",
+                });
+            },
+        });
+        setIsPopUpOpen(false);
+    };
 
     const workers = useMemo(
         () => [...new Set(appointments.map((a) => a.worker_name))].sort(),
@@ -38,7 +62,7 @@ export function AppointmentsContainer() {
                 (status === "" || a.appointment_state === status)
             )
             .sort((a, b) => a.start_time.localeCompare(b.start_time));
-    }, [appointments, search, worker, status]);
+    }, [appointments, search, worker, status]); // Dependency array (if something changes it has to do the calculation again)
     
     /*If you click previous or next day, 
     * this function will receive a delta of -1 or 1 respectively.
@@ -54,7 +78,12 @@ export function AppointmentsContainer() {
 
     return (
         <div className="flex flex-col gap-6">
-            <DateNavigation date={date} onPrevDay={() => changeDay(-1)} onNextDay={() => changeDay(1)} />
+            <div className="flex items-center justify-between flex-wrap gap-3">
+                <DateNavigation date={date} onPrevDay={() => changeDay(-1)} onNextDay={() => changeDay(1)} />
+                <Button onClick={() => setIsPopUpOpen(true)} infoMessage="Book a new appointment">
+                    + Add appointment
+                </Button>
+            </div>
             <AppointmentsFilters
                 search={search}
                 onSearchChange={setSearch}
@@ -65,6 +94,19 @@ export function AppointmentsContainer() {
                 workers={workers}
             />
             <AppointmentList appointments={filteredAppointments} />
+
+            {isPopUpOpen && (
+                <AddAppointmentForm
+                    onClose={() => setIsPopUpOpen(false)}
+                    dateISO={toIsoDate(date)}
+                    dateLabel={date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                    onSave={handleAddAppointment}
+                />
+            )}
+
+            {toast && (
+                <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+            )}
         </div>
     );
 }

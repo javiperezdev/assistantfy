@@ -1,10 +1,10 @@
 # 🎯 FOCUS
-Develop get endpoint and service function in the backend for appointments and then connect with  the frontend
+
 ---
 
 # 🧠 BRAIN DUMP
 - Develop delete endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
-- Develop endpoints and service functions in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
+- Develop post endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Before testing backend introduce all the seed data
 1. Redis context structure
 6. webhook payload validation
@@ -38,13 +38,16 @@ Develop get endpoint and service function in the backend for appointments and th
 17. better AI context management
 - Problem of data consistency when data gets modified by AI with tools and not via mutations, for the moment I would just set a refetchInterval but in the future I have to do some research on websockets.
 - Research if composite index are worth it for appointment (start_time and end_time)
-
+- I should look how to append to the number of the phone the business owner introduce the prefix, because meta returns to me (3466578907) and a owner could write (66578907). I could just add a place where the prefix of the phone could be selected and set as default the country from where the business is.
+- Center day selector and button for small devices.
 
 
        
 ---
 
 # ✅ WINS
+- Develop post endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
+- Develop get endpoint and service function in the backend for appointments and then connect with  the frontend
 - [x] Fix bug when toggling BusinessHours data inside it erases
 - [x] Fix bug when toggling a day, that doesn't turns off. Although network says it's okey it doesn't update the database.
 - [x] Create worker hours from the frontend (maybe I should change the toggle thing before, we would investigate it)
