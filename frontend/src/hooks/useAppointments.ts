@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createAppointment, getAppointments } from "../services/appointmentService";
-import type { Appointment } from "../types/appointment";
+import { createAppointment, getAppointments, updateAppointmentState } from "../services/appointmentService";
+import type { Appointment, AppointmentState } from "../types/appointment";
 
 export function useAppointments(date: string) {
     return useQuery<Appointment[]> ({
@@ -28,6 +28,19 @@ export function useCreateAppointment() {
         mutationFn: (input: CreateAppointmentInput) => createAppointment(
             input.phone_number, input.service_id, input.start_time, input.name, input.worker_id
         ),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['appointments']
+            })
+        }
+    })
+}
+
+export function useUpdateAppointmentState() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ appointment_id, new_state }: { appointment_id: number; new_state: AppointmentState }) =>
+            updateAppointmentState(appointment_id, new_state),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ['appointments']

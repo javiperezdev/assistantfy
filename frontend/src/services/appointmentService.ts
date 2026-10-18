@@ -1,8 +1,13 @@
 import { apiClient } from "./ApiClient";
-import type { Appointment } from "../types/appointment";
+import type { Appointment, AppointmentState } from "../types/appointment";
 
 export async function getAppointments(date: string): Promise<Appointment[]> {
     const response = await apiClient.get(`/appointments?business_id=1&date=${date}`);
+    return response.data;
+}
+
+export async function updateAppointmentState(appointment_id: number, new_state: AppointmentState) {
+    const response = await apiClient.patch(`/appointment/state?business_id=1&appointment_id=${appointment_id}&new_state=${new_state}`);
     return response.data;
 }
 

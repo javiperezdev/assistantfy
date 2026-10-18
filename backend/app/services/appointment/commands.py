@@ -1,7 +1,7 @@
-from sqlmodel import select
+from sqlmodel import select, update
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
-from app.models import Appointment
+from app.models import Appointment, AppointmentState
 from app.services.appointment.validators import validate_appointment_creation
 from app.services.appointment.queries import get_available_slots
 from app.services.business_service import get_business_by_id
@@ -123,3 +123,29 @@ async def create_appointment_from_owner(session: AsyncSession, business_id: int,
         worker_id=worker_id,
         start_time=start_time,
     )
+
+async def set_appointment_state(session: AsyncSession, appointment_id: int, business_id: int, new_state: AppointmentState):
+    """
+    Change the state of an appointment (cancel, mark no-show, mark complete).
+    Deliberately NO transition rules: any state can be corrected into any
+    other one, because the agenda presents past BOOKED appointments as
+    COMPLETED (an assumption), and assumptions must be correctable. The
+    frontend select is what offers the sensible options per state.
+    One direct UPDATE: nobody consumes the appointment object (the frontend
+    just invalidates its cache), so SELECT-then-set would only add a round
+    trip. Returns the rows changed: 1 = updated, 0 = it doesn't exist or
+    belongs to another business.
+    ponytail: if a caller ever needs the row back (e.g. to notify the worker
+    on cancellation), re-select it here instead of reverting to SELECT-then-set.
+    """
+    statement = (
+        update(Appointment)
+        .where(
+            Appointment.id == appointment_id,
+            Appointment.business_id == business_id,
+        )
+        .values(appointment_state=new_state)
+    )
+    result = await session.exec(statement)
+    await session.commit()
+    return result.rowcount

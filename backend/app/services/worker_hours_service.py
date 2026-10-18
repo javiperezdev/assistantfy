@@ -102,13 +102,19 @@ async def toggle_day(worker_id: int, business_id: int, day_of_week: int, is_acti
     '''
     Method that toggles the is_active field of a worker's hours for a specific day of the week.
     If no record exists for the given day, it creates a new one with is_active set to True. 
+    Returns None when the worker doesn't belong to that business, so callers can answer 404.
     '''
+    # Tenant guard, same as create_worker_hours: without it, any business could
+    # toggle another business's worker hours just by knowing the worker_id.
+    worker = select(Worker).where(Worker.id == worker_id, Worker.business_id == business_id)
+    if (await session.exec(worker)).first() is None:
+        return None
+
     statement = (
         update(WorkerHours)
         .where(
             WorkerHours.worker_id == worker_id,
             WorkerHours.day_of_week == day_of_week,
-            # aquí también tu condición de business si corresponde
         )
         .values(is_active=is_active)
     )
@@ -117,7 +123,7 @@ async def toggle_day(worker_id: int, business_id: int, day_of_week: int, is_acti
 
     if not result.rowcount:  # No rows were updated, meaning no record exists for the given day
         # If no record exists for the given day, create a new one with is_active set to True (In the future we may create a method for this, but for now we will create it here)
-        hour = WorkerHours(worker_id=worker_id, business_id=business_id, day_of_week=day_of_week, start_time=time(9, 0, 0), end_time=time(17, 0, 0), is_active=True)
+        hour = WorkerHours(worker_id=worker_id, day_of_week=day_of_week, start_time=time(9, 0, 0), end_time=time(17, 0, 0), is_active=True)
         session.add(hour)
         await session.commit()
         await session.refresh(hour)

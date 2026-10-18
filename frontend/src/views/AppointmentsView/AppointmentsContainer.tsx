@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { useAppointments, useCreateAppointment, type CreateAppointmentInput } from "../../hooks/useAppointments";
+import { useAppointments, useCreateAppointment, useUpdateAppointmentState, type CreateAppointmentInput } from "../../hooks/useAppointments";
+import type { AppointmentState } from "../../types/appointment";
 import { DateNavigation } from "./DateNavigation";
 import { AppointmentsFilters } from "./AppointmentsFilters";
 import { AppointmentList } from "./AppointmentList";
@@ -13,6 +14,13 @@ function toIsoDate(d: Date): string {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+/* The backend sends a human message as `detail` (slot taken, past time,
+ * appointment not found...) — show it verbatim in the toast. */
+function errorDetail(error: unknown, fallback: string): string {
+    const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+    return typeof detail === "string" ? detail : fallback;
+}
+
 export function AppointmentsContainer() {
     const [date, setDate] = useState(new Date());
     const [search, setSearch] = useState("");
@@ -23,6 +31,7 @@ export function AppointmentsContainer() {
 
     const { data: appointments = [] } = useAppointments(toIsoDate(date));
     const { mutate: createAppointment } = useCreateAppointment();
+    const { mutate: updateAppointmentState } = useUpdateAppointmentState();
 
     const handleAddAppointment = (input: CreateAppointmentInput) => {
         createAppointment(input, {
@@ -30,16 +39,27 @@ export function AppointmentsContainer() {
                 setToast({ message: "Appointment booked!", type: "success" });
             },
             onError: (error) => {
-                // The backend sends a human message as `detail` (slot taken,
-                // past time, worker can't do the service...) — show it verbatim.
-                const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
                 setToast({
-                    message: typeof detail === "string" ? detail : "Could not book the appointment",
+                    message: errorDetail(error, "Could not book the appointment"),
                     type: "error",
                 });
             },
         });
         setIsPopUpOpen(false);
+    };
+
+    const handleSetState = (appointment_id: number, new_state: AppointmentState) => {
+        updateAppointmentState({ appointment_id, new_state }, {
+            onSuccess: () => {
+                setToast({ message: `Appointment marked as ${new_state.toLowerCase().replace("_", " ")}`, type: "success" });
+            },
+            onError: (error) => {
+                setToast({
+                    message: errorDetail(error, "Could not update the appointment"),
+                    type: "error",
+                });
+            },
+        });
     };
 
     const workers = useMemo(
@@ -93,7 +113,7 @@ export function AppointmentsContainer() {
                 onStatusChange={setStatus}
                 workers={workers}
             />
-            <AppointmentList appointments={filteredAppointments} />
+            <AppointmentList appointments={filteredAppointments} onSetState={handleSetState} />
 
             {isPopUpOpen && (
                 <AddAppointmentForm

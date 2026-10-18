@@ -15,7 +15,9 @@ async def get_client_appointments(session: AsyncSession, client_phone_number: st
     # Appointment times are stored in the business timezone as naive datetimes,
     # so "now" must be computed in that same timezone to compare correctly.
     business = await get_business_by_id(session, business_id)
-    now = datetime.now(ZoneInfo(business.timezone)).replace(tzinfo=None) if business else datetime.now()
+    if not business:
+        return []
+    now = datetime.now(ZoneInfo(business.timezone)).replace(tzinfo=None)
 
     statement = (
         select(Appointment)
@@ -47,8 +49,16 @@ async def get_appointments_for_day(session: AsyncSession, business_id: int, requ
     All the appointments of a single day for a business, flattened with the
     client/worker/service names so the frontend can render them directly.
     """
+    business = await get_business_by_id(session, business_id)
+    if not business:
+        # No business row -> no appointments can exist (FKs) and there is no
+        # timezone to compute "now" in, so there is nothing to derive.
+        return []
     start_of_day = datetime.combine(requested_date, time.min)
     end_of_day = datetime.combine(requested_date, time.max)
+    # Appointments are stored naive in the business timezone, so "now" must be
+    # computed in that same timezone (same pattern as get_client_appointments).
+    now = datetime.now(ZoneInfo(business.timezone)).replace(tzinfo=None)
     statement = (
         select(Appointment, Client.name, Worker.name, Service.name, Service.duration_minutes)
         .join(Client, Appointment.client_id == Client.id)
@@ -67,7 +77,15 @@ async def get_appointments_for_day(session: AsyncSession, business_id: int, requ
             "service_name": service_name,
             "duration_minutes": duration_minutes,
             "start_time": appointment.start_time.strftime("%H:%M"),
-            "appointment_state": appointment.appointment_state,
+            # past BOOKED appointments are *presented* as COMPLETED
+            # so the owner doesn't have to mark every visit one by one; the DB
+            # keeps the real state and the card's select can still correct it
+            # (no-show/cancel). 
+            "appointment_state": (
+                "COMPLETED"
+                if appointment.appointment_state == AppointmentState.BOOKED and appointment.end_time < now
+                else appointment.appointment_state
+            ),
         }
         for appointment, client_name, worker_name, service_name, duration_minutes in rows
     ]

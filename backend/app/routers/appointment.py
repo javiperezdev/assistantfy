@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.services.appointment.queries import get_appointments_for_day
-from app.services.appointment.commands import create_appointment_from_owner
+from app.services.appointment.commands import create_appointment_from_owner, set_appointment_state
+from app.models import AppointmentState
 
 router = APIRouter(tags=["Appointment"])
 
@@ -36,3 +37,12 @@ async def add_appointment(business_id: int, phone_number: str, service_id: int, 
             detail=message,
         )
     return result
+
+@router.patch("/appointment/state", status_code=status.HTTP_204_NO_CONTENT)
+async def change_appointment_state(appointment_id: int, business_id: int, new_state: AppointmentState,
+                                   session: AsyncSession = Depends(get_session)):
+    rows_changed = await set_appointment_state(
+        session=session, appointment_id=appointment_id, business_id=business_id, new_state=new_state,
+    )
+    if rows_changed == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found.")

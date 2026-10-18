@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, time
 from app.models import Business, Service, Worker, WorkerHours, WorkerService
 from app.services.worker_service import get_workers_by_service
-from app.services.worker_hours_service import get_worker_hours, delete_worker_hour, create_worker_hours, update_worker_hours
+from app.services.worker_hours_service import get_worker_hours, delete_worker_hour, create_worker_hours, update_worker_hours, toggle_day
 from app.services.worker_service_service import get_worker_services
 from app.services.appointment.validators import validate_appointment_creation
 
@@ -107,3 +107,22 @@ async def test_create_and_update_worker_hours(db_session):
     assert await update_worker_hours(hour.id, active_worker.id, other_business.id, 1, time(8, 0), time(9, 0), db_session) is None
     hours = await get_worker_hours(active_worker.id, business.id, db_session)
     assert (hours[0].day_of_week, hours[0].start_time) == (3, time(10, 0))
+
+
+@pytest.mark.asyncio
+async def test_toggle_day_is_scoped_by_business(db_session):
+    business, service, active_worker, inactive_worker = await seed_business_with_two_workers(db_session)
+    other_business = Business(phone_number="322", name="other", timezone="UTC")
+    db_session.add(other_business)
+    await db_session.flush()
+
+    # Tenant boundary: another business can't toggle this worker's day (None -> 404)
+    assert await toggle_day(active_worker.id, other_business.id, 1, False, db_session) is None
+
+    # Day with no record yet -> creates it active
+    created = await toggle_day(active_worker.id, business.id, 1, True, db_session)
+    assert (created.day_of_week, created.is_active) == (1, True)
+
+    # Existing record -> flips it (rowcount), and the day stops being listed
+    assert await toggle_day(active_worker.id, business.id, 1, False, db_session) == 1
+    assert await get_worker_hours(active_worker.id, business.id, db_session) == []

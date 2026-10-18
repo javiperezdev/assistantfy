@@ -2,7 +2,7 @@ import pytest
 from datetime import date, datetime
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.models import Appointment, AppointmentState, Client, Service, Worker
-from app.services.appointment.queries import get_appointments_for_day
+from app.services.appointment.queries import get_appointments_for_day, get_client_appointments
 
 @pytest.mark.asyncio
 async def test_get_appointments_for_day_flattens_and_stays_in_tenant(db_session: AsyncSession, two_businesses):
@@ -59,7 +59,10 @@ async def test_get_appointments_for_day_flattens_and_stays_in_tenant(db_session:
             "service_name": "Haircut",
             "duration_minutes": 45,
             "start_time": "09:30",
-            "appointment_state": AppointmentState.BOOKED,
+            # past BOOKED appointments are presented as COMPLETED on purpose
+            # (the assumption and its corrections are covered in
+            # test_appointment_state_changes.py)
+            "appointment_state": "COMPLETED",
         },
         {
             "id": late.id,
@@ -78,3 +81,11 @@ async def test_get_appointments_for_day_flattens_and_stays_in_tenant(db_session:
 
     # An empty day is just an empty list.
     assert await get_appointments_for_day(db_session, business_a.id, date(2026, 6, 20)) == []
+
+
+@pytest.mark.asyncio
+async def test_unknown_business_returns_empty(db_session: AsyncSession, two_businesses):
+    # No business row -> both day queries answer [] instead of trying to
+    # compute "now" in a timezone that doesn't exist.
+    assert await get_appointments_for_day(db_session, 99999, date(2026, 6, 12)) == []
+    assert await get_client_appointments(db_session, "111", 99999) == []
