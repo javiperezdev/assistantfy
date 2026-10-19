@@ -98,7 +98,7 @@ export function AppointmentsContainer() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex flex-col md:flex-row md:justify-between flex-wrap gap-3">
                 <DateNavigation date={date} onPrevDay={() => changeDay(-1)} onNextDay={() => changeDay(1)} />
                 <Button onClick={() => setIsPopUpOpen(true)} infoMessage="Book a new appointment">
                     + Add appointment

@@ -1,5 +1,7 @@
 # 🎯 FOCUS
-- Develop delete endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
+- style 404 page
+- Configurations may be aligned to the center horizontally in small devices
+- Long names doesn't appear in the appointment (do some research)
 ---
 
 # 🧠 BRAIN DUMP
@@ -11,14 +13,10 @@
 6. webhook payload validation
 7. duplicate webhook/idempotency
 - Investigar como crear rutas privadas para usuarios loggeados
-- style 404 page
 - Fix bug when business isnt introduced in the database
 - Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
 - Add functionality so business owner can modify his business information
-- Configurations may be aligned to the center horizontally in small devices
-- Appointments title should be inside a column with the button in small devices
-- Long names doesn't appear in the appointment (do some research)
 - Develop secondary buttons (needed for the navbar for example)
 - Check why are we getting "GET /health HTTP/1.1" 404 Not Found"
 
@@ -47,6 +45,7 @@
 ---
 
 # ✅ WINS
+- Develop delete endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Develop post endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Develop get endpoint and service function in the backend for appointments and then connect with  the frontend
 - [x] Fix bug when toggling BusinessHours data inside it erases
