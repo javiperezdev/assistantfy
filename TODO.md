@@ -1,6 +1,5 @@
 # 🎯 FOCUS
 - style 404 page
-- Configurations may be aligned to the center horizontally in small devices
 - Long names doesn't appear in the appointment (do some research)
 ---
 
@@ -45,6 +44,7 @@
 ---
 
 # ✅ WINS
+- Configurations may be aligned to the center horizontally in small devices
 - Develop delete endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Develop post endpoint and service function in the backend for appointments and then connect with the frontend (also I have to add icons, handler and that kind of stuff)
 - Develop get endpoint and service function in the backend for appointments and then connect with  the frontend
