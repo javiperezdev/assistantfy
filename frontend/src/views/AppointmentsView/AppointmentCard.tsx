@@ -32,34 +32,48 @@ export function AppointmentCard({ appointment, onSetState }: {
     const targets = STATE_TARGETS[appointment.appointment_state];
     const badgeClasses = `px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${STATE_BADGE[appointment.appointment_state]}`;
 
+
     return (
-        <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-100 rounded-xl hover:border-blue-200 transition-colors">
-            <span className="text-blue-950 font-semibold w-20 shrink-0">
+        <div className="flex flex-col gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl hover:border-blue-200 transition-colors md:flex-row md:items-center md:gap-6 md:p-4">
+            <span className="text-blue-950 font-semibold md:w-20 md:shrink-0">
                 {formatTime(appointment.start_time)}
             </span>
-            <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-blue-950 font-bold text-base truncate">{appointment.client_name}</span>
+
+            <div className="flex flex-col min-w-0 md:flex-1">
+                <span className="text-blue-950 font-semibold">
+                    {appointment.client_name}
+                </span>
                 <span className="text-sm font-medium text-blue-600">
                     {appointment.service_name} • {appointment.duration_minutes} min
                 </span>
             </div>
+
             {targets.length === 0 ? (
                 <span className={badgeClasses}>Cancelled</span>
             ) : (
-                /* The badge itself is the control: same look/space, but picking
-                 * an option updates the state right away (no save button). */
-                <span className="relative inline-flex shrink-0">
+                <span className="relative inline-flex shrink-0 self-start md:self-center">
                     <select
                         value={appointment.appointment_state}
-                        onChange={(e) => onSetState(appointment.id, e.target.value as AppointmentState)}
+                        onChange={(e) =>
+                            onSetState(
+                                appointment.id,
+                                e.target.value as AppointmentState
+                            )
+                        }
                         aria-label={`State of ${appointment.client_name}'s appointment`}
                         className={`${badgeClasses} appearance-none cursor-pointer pr-6`}
                     >
-                        {STATE_OPTIONS.filter((option) => targets.includes(option.value)).map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
+                        {STATE_OPTIONS.filter((option) =>
+                            targets.includes(option.value)
+                        ).map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
                         ))}
                     </select>
-                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-70">▾</span>
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-70">
+                        ▾
+                    </span>
                 </span>
             )}
         </div>
