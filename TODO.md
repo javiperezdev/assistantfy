@@ -1,5 +1,5 @@
 # 🎯 FOCUS
-- Mock login
+
 ---
 
 # 🧠 BRAIN DUMP
@@ -10,9 +10,8 @@
 1. Redis context structure
 6. webhook payload validation
 7. duplicate webhook/idempotency
-- Investigar como crear rutas privadas para usuarios loggeados
 - Fix bug when business isnt introduced in the database
-- Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
+
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
 - Add functionality so business owner can modify his business information
 - Develop secondary buttons (needed for the navbar for example)
@@ -43,6 +42,8 @@
 ---
 
 # ✅ WINS
+- Modify 'get_first_available_worker' so that it orders by the worker with less appointments assigned so it's fair for every worker.
+- Mock login
 - Long names doesn't appear in the appointment (do some research)
 - style 404 page
 - Configurations may be aligned to the center horizontally in small devices

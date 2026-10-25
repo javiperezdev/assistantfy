@@ -1,7 +1,8 @@
 import pytest
-from datetime import datetime, time
-from app.models import Business, Service, Worker, WorkerHours, WorkerService
-from app.services.worker_service import get_workers_by_service
+from datetime import datetime, time, timedelta
+from zoneinfo import ZoneInfo
+from app.models import Business, Client, Service, Worker, WorkerHours, WorkerService, Appointment, AppointmentState
+from app.services.worker_service import get_workers_by_service, get_first_available_worker
 from app.services.worker_hours_service import get_worker_hours, delete_worker_hour, create_worker_hours, update_worker_hours, toggle_day
 from app.services.worker_service_service import get_worker_services
 from app.services.appointment.validators import validate_appointment_creation
@@ -126,3 +127,145 @@ async def test_toggle_day_is_scoped_by_business(db_session):
     # Existing record -> flips it (rowcount), and the day stops being listed
     assert await toggle_day(active_worker.id, business.id, 1, False, db_session) == 1
     assert await get_worker_hours(active_worker.id, business.id, db_session) == []
+
+
+# --- get_first_available_worker ------------------------------------------------
+# Reference slot: Monday 2027-06-14 10:00-11:00 UTC (isoweekday() == 1)
+
+MONDAY_10 = datetime(2027, 6, 14, 10, 0, tzinfo=ZoneInfo("UTC"))
+
+
+async def seed_availability(db_session, timezone="UTC", worker_count=2, hours=True, day_of_week=1):
+    business = Business(phone_number="123", name="test", timezone=timezone)
+    db_session.add(business)
+    await db_session.flush()
+
+    service = Service(business_id=business.id, name="service", price=10, duration_minutes=60)
+    client = Client(business_id=business.id, phone_number="555", name="client")
+    db_session.add_all([service, client])
+    await db_session.flush()
+
+    workers = []
+    for i in range(worker_count):
+        worker = Worker(business_id=business.id, name=f"w{i}")
+        db_session.add(worker)
+        await db_session.flush()
+        db_session.add(WorkerService(business_id=business.id, service_id=service.id, worker_id=worker.id))
+        if hours:
+            db_session.add(WorkerHours(worker_id=worker.id, day_of_week=day_of_week,
+                                       start_time=time(9, 0), end_time=time(17, 0)))
+        workers.append(worker)
+    await db_session.flush()
+    return business, service, client, workers
+
+
+async def add_appointment(db_session, business, service, client, worker, start, minutes=60):
+    # Appointments are stored as naive business-local timestamps (TIMESTAMP WITHOUT TIME ZONE).
+    local_start = start.astimezone(ZoneInfo(business.timezone)).replace(tzinfo=None)
+    appointment = Appointment(business_id=business.id, service_id=service.id, client_id=client.id,
+                              worker_id=worker.id, start_time=local_start,
+                              end_time=local_start + timedelta(minutes=minutes))
+    db_session.add(appointment)
+    await db_session.flush()
+    return appointment
+
+
+@pytest.mark.asyncio
+async def test_returns_free_worker_inside_hours(db_session):
+    business, service, client, (w1, _) = await seed_availability(db_session)
+
+    worker_id = await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id)
+
+    assert worker_id == w1.id
+
+
+@pytest.mark.asyncio
+async def test_naive_start_time_is_read_as_business_local(db_session):
+    business, service, client, _ = await seed_availability(
+        db_session, timezone="America/Argentina/Buenos_Aires"
+    )
+
+    # Naive input == business-local time: 10:00 local is inside hours...
+    ok = await get_first_available_worker(db_session, service.id, MONDAY_10.replace(tzinfo=None), 60, business.id)
+    # ...and 19:00 local (22:00 UTC) is outside them.
+    late = await get_first_available_worker(
+        db_session, service.id, MONDAY_10.replace(hour=22, tzinfo=None), 60, business.id
+    )
+
+    assert ok is not None
+    assert late is None
+
+
+@pytest.mark.asyncio
+async def test_returns_none_outside_working_hours(db_session):
+    business, service, client, _ = await seed_availability(db_session)
+
+    worker_id = await get_first_available_worker(
+        db_session, service.id, MONDAY_10.replace(hour=18), 60, business.id
+    )
+
+    assert worker_id is None
+
+
+@pytest.mark.asyncio
+async def test_returns_none_when_hours_row_is_inactive(db_session):
+    business, service, client, (worker, _) = await seed_availability(db_session, hours=False)
+    db_session.add(WorkerHours(worker_id=worker.id, day_of_week=1,
+                               start_time=time(9, 0), end_time=time(17, 0), is_active=False))
+    await db_session.flush()
+
+    assert await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id) is None
+
+
+@pytest.mark.asyncio
+async def test_skips_worker_with_overlapping_appointment(db_session):
+    business, service, client, (busy, free) = await seed_availability(db_session)
+    await add_appointment(db_session, business, service, client, busy, MONDAY_10 + timedelta(minutes=30))
+
+    worker_id = await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id)
+
+    assert worker_id == free.id
+
+
+@pytest.mark.asyncio
+async def test_only_busy_worker_means_no_availability(db_session):
+    business, service, client, workers = await seed_availability(db_session, worker_count=1)
+    await add_appointment(db_session, business, service, client, workers[0], MONDAY_10 + timedelta(minutes=30))
+
+    assert await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id) is None
+
+
+@pytest.mark.asyncio
+async def test_picks_least_busy_worker_of_free_candidates(db_session):
+    business, service, client, (loaded, idle) = await seed_availability(db_session)
+    # Both are free at 10:00, but `loaded` already has a later booking today.
+    await add_appointment(db_session, business, service, client, loaded, MONDAY_10.replace(hour=15))
+
+    worker_id = await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id)
+
+    assert worker_id == idle.id
+
+
+@pytest.mark.asyncio
+async def test_working_hours_use_business_timezone(db_session):
+    business, service, client, _ = await seed_availability(db_session, timezone="America/Argentina/Buenos_Aires")
+
+    # 22:00 UTC == 19:00 in Buenos Aires -> outside the 9-17 hours there.
+    late = await get_first_available_worker(db_session, service.id, MONDAY_10.replace(hour=22), 60, business.id)
+    # 13:00 UTC == 10:00 in Buenos Aires -> inside hours.
+    ok = await get_first_available_worker(db_session, service.id, MONDAY_10.replace(hour=13), 60, business.id)
+
+    assert late is None
+    assert ok is not None
+
+
+@pytest.mark.asyncio
+async def test_ignores_cancelled_appointments(db_session):
+    business, service, client, workers = await seed_availability(db_session, worker_count=1)
+    cancelled = await add_appointment(db_session, business, service, client, workers[0], MONDAY_10 + timedelta(minutes=30))
+    cancelled.appointment_state = AppointmentState.CANCELLED
+    await db_session.flush()
+
+    worker_id = await get_first_available_worker(db_session, service.id, MONDAY_10, 60, business.id)
+
+    assert worker_id == workers[0].id
