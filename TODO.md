@@ -3,6 +3,28 @@
 ---
 
 # 🧠 BRAIN DUMP
+- add invite script (invite via email business)
+- implement I forgot my password
+Infrastructure Hardening (Pre-Production)
+Urgent — While Developing Locally
+
+    [ ] Remove ports: from db and redis in docker-compose.yml
+    (access via docker compose exec, without publishing ports)
+    Minimum acceptable if you need host access: 127.0.0.1:5433:5432
+    [ ] requirepass in Redis + REDIS_URL with a hex password
+    (openssl rand -hex 24, to ensure it is secure inside a URL)
+    [ ] Fix the Redis healthcheck: redis-cli -a "$REDIS_PASSWORD" ping
+    [ ] chmod 600 .env and create .env.example with placeholders
+
+Upon Deployment
+
+    [ ] Reverse proxy with TLS (Caddy): port 443 only, API and frontend on the same origin
+    [ ] SESSION_COOKIE_SECURE=true + HSTS
+    [ ] Backups: client-side encrypted pg_dump (age/gpg) + private bucket + restoration test
+    [ ] Postgres assistantfy_app role with least privilege (no superuser)
+    [ ] Provider security group / DOCKER-USER rules (UFW does not filter Docker ports)
+    [ ] Production: remove --reload, remove code bind-mounts, pin image versions
+
 - Convert 'update_business_hours' and 'delete_business_hours' to a direct UPDATE with rowcount instead of SELECT-then-change: the fetched row is never used (the delete router already answers 204 and discards it), so each mutation would go from 2 DB round-trips to 1 and the "not found" guard becomes rowcount == 0.
 - Convert 'delete_worker' (soft delete) to a direct UPDATE of is_active=False with rowcount: same reason as business hours, the frontend never reads the returned worker, it just refetches the list.
 - Low priority: 'update_worker_hours', 'delete_worker_hour' and 'delete_service' could also be UPDATE/DELETE + rowcount, but their WHERE needs a subquery to check the worker belongs to the business (or drags a test change along) - do them last, if ever. For 'delete_service' the real pending fix is the FK bug when the service has appointments linked.
@@ -11,7 +33,6 @@
 6. webhook payload validation
 7. duplicate webhook/idempotency
 - Fix bug when business isnt introduced in the database
-
 - Fix bug when deleting or modifyinfg a service that has appointments linked to.
 - Add functionality so business owner can modify his business information
 - Develop secondary buttons (needed for the navbar for example)

@@ -76,7 +76,8 @@ class AdminUser(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     business_id: int = Field(foreign_key="business.id")
     email: str = Field(unique=True, index=True)
-    password: str 
+    # Only the Argon2id hash is stored (see app/security.py), never the password.
+    password_hash: str
     is_active: bool = Field(default=True)
 
 
