@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     # front-end 
     front_end_url: str
 
+    # session configuration
+    session_cookie_name: str = "assistantfy_session"
+    session_cookie_secure: bool = False
+    session_ttl_seconds: int = 2592000        # 30 days, absolute Redis TTL
+    session_max_age_seconds: int = 2592000    # 30 days, cookie max-age
+    session_path: str = "/"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

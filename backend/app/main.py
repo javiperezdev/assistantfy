@@ -3,7 +3,7 @@ import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import whatsapp, worker, worker_service, worker_hours, service, business, appointment
+from .routers import auth, whatsapp, worker, worker_service, worker_hours, service, business, appointment
 from .database import create_db_and_tables, engine
 from openai import AsyncOpenAI
 from .config import settings
@@ -32,6 +32,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(whatsapp.router)
+app.include_router(auth.router, prefix="/API")
 app.include_router(worker.router, prefix="/API")
 app.include_router(worker_service.router, prefix="/API")
 app.include_router(worker_hours.router, prefix="/API")
