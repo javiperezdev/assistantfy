@@ -38,7 +38,7 @@ export function LoginView() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="admin@assistantfy.com"
+                        placeholder="javi@gmail.com"
                         className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:border-blue-500 transition-all text-blue-950 bg-white"
                     />
                 </div>
@@ -51,7 +51,6 @@ export function LoginView() {
                         id="password"
                         type="password"
                         required
-                        minLength={6}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
@@ -69,10 +68,6 @@ export function LoginView() {
                     {loading ? "Signing in..." : "Sign in"}
                 </button>
             </form>
-
-            <p className="mt-4 text-center text-xs text-blue-400 italic">
-                Demo credentials: admin@assistantfy.com / password123
-            </p>
         </AuthCard>
     );
 }
