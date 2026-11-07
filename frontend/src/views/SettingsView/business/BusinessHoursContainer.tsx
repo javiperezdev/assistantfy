@@ -47,8 +47,7 @@ export function BusinessHoursContainer() {
                 onError,
             }));
         } else {
-            // business_id=1 hardcoded
-            createBusinessHours({ business_id: 1, day_of_week: dayOfWeek, start_time: "09:00", end_time: "17:00" }, {
+            createBusinessHours({ day_of_week: dayOfWeek, start_time: "09:00", end_time: "17:00" }, {
                 onSuccess: () => onSuccess("Business hours updated"),
                 onError,
             });
@@ -60,7 +59,7 @@ export function BusinessHoursContainer() {
         const start = daySlots[daySlots.length - 1]?.end_time ?? "09:00";
         const end_time = nextSlotEnd(start);
         if (!end_time) return; // no room before the last selectable slot
-        createBusinessHours({ business_id: 1, day_of_week: dayOfWeek, start_time: start, end_time }, {
+        createBusinessHours({ day_of_week: dayOfWeek, start_time: start, end_time }, {
             onSuccess: () => onSuccess("Business hours updated"),
             onError,
         });
