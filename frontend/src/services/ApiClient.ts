@@ -18,8 +18,11 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401) {
             const requestUrl = (error.config as InternalAxiosRequestConfig | undefined)?.url ?? '';
             const alreadyOnLogin = window.location.pathname === '/login';
-            // Don't redirect when the login call itself fails; that error is handled by the form.
-            if (!requestUrl.includes('/auth/login') && !alreadyOnLogin) {
+            // /auth/login: the form shows its own error. /auth/me: the route
+            // guards (RequireAuth/GuestOnly) handle it via client-side redirect.
+            const handledElsewhere =
+                requestUrl.includes('/auth/login') || requestUrl.includes('/auth/me');
+            if (!handledElsewhere && !alreadyOnLogin) {
                 window.location.href = '/login';
             }
         }

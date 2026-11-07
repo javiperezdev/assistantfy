@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SettingView } from './views/SettingsView/SettingView';
 import { NotFound } from './views/NotFound';
 import { LoginView } from './views/AuthView/LoginView';
+import { RequireAuth, GuestOnly } from './components/AuthGuards';
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -13,9 +14,9 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<NotFound />} />
-          <Route path="/" element={<AppointmentsView />} />
-          <Route path="/login" element={<LoginView />} />
-          <Route path="/settings" element={<SettingView />} />
+          <Route path="/" element={<RequireAuth><AppointmentsView /></RequireAuth>} />
+          <Route path="/login" element={<GuestOnly><LoginView /></GuestOnly>} />
+          <Route path="/settings" element={<RequireAuth><SettingView /></RequireAuth>} />
         </Routes>  
       </BrowserRouter>
     </QueryClientProvider>
