@@ -43,14 +43,24 @@ To run the project in your local environment, follow these steps:
 
 2. Create a `.env` file with all the required API keys.
 
-3. Register with Meta for Developers (get the keys).
+3. Register with Meta for Developers (if you want to use the AI agent).
 
-4. Install the required dependencies.
+4. Install the required dependencies: `pip install -r backend/requirements.txt`.
 
 5. Execute `docker compose up -d` in the terminal.
+
+   Create your admin account (and its business) so you can log in:
+
+   docker compose exec api python -m app.scripts.create_admin
 
 6. Open WhatsApp if you want to use the client side, or http://localhost:5173 if you want to test the business owner side.
 
 ## 🍿 Video
 
-Coming soon...
+### Business owner perspective 
+
+![Demo de Assistantfy](assets/demo.gif)
+
+### Client perspective 
+
+Coming soon!
