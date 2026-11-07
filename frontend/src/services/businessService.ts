@@ -2,7 +2,7 @@ import { apiClient } from "./ApiClient";
 import type { BusinessHours } from "../types/business";
 
 export async function getBusinessHours(): Promise<BusinessHours[]> {
-    const response = await apiClient.get("business-hours?business_id=1");
+    const response = await apiClient.get("business-hours");
     return response.data.map((h: BusinessHours) => ({
         ...h,
         start_time: h.start_time.substring(0, 5),
@@ -11,15 +11,15 @@ export async function getBusinessHours(): Promise<BusinessHours[]> {
 }
 
 export async function createBusinessHours(day_of_week: number, start_time: string, end_time: string): Promise<BusinessHours> {
-    const response = await apiClient.post(`/business-hours?business_id=1&day_of_week=${day_of_week}&start_time=${start_time}&end_time=${end_time}`);
+    const response = await apiClient.post(`/business-hours?day_of_week=${day_of_week}&start_time=${start_time}&end_time=${end_time}`);
     return response.data;
 }
 
 export async function updateBusinessHours(id: number, day_of_week: number, start_time: string, end_time: string): Promise<BusinessHours> {
-    const response = await apiClient.put(`/business-hours?id=${id}&business_id=1&day_of_week=${day_of_week}&start_time=${start_time}&end_time=${end_time}`);
+    const response = await apiClient.put(`/business-hours?id=${id}&day_of_week=${day_of_week}&start_time=${start_time}&end_time=${end_time}`);
     return response.data;
 }
 
 export async function deleteBusinessHours(id: number): Promise<void> {
-    await apiClient.delete(`/business-hours?business_id=1&id=${id}`);
+    await apiClient.delete(`/business-hours?id=${id}`);
 }

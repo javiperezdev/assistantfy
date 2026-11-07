@@ -125,6 +125,17 @@ async def require_current_admin(
     return admin
 
 
+async def require_business_id(
+    admin: AdminUser = Depends(require_current_admin),
+) -> int:
+    """FastAPI dependency that returns the session's business id.
+
+    Replaces the client-supplied ``business_id`` query parameter: the tenant is
+    derived from the authenticated admin, never taken from the request.
+    """
+    return admin.business_id
+
+
 async def get_optional_token(
     cookie_token: Annotated[str | None, Cookie(alias=settings.session_cookie_name)] = None,
     bearer: Annotated[HTTPAuthorizationCredentials | None, Security(HTTPBearer(auto_error=False))] = None,

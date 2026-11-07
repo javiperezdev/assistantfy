@@ -1,65 +1,9 @@
-import time
-from unittest.mock import AsyncMock
-
 import httpx
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.config import settings
-from app.database import get_session
-from app.main import app as fastapi_app
 from app.scripts.create_admin import create_or_reset_admin
-
-
-class FakeRedis:
-    """In-memory Redis substitute with TTL support for auth tests."""
-
-    def __init__(self):
-        self._data: dict[str, tuple[str, float]] = {}
-
-    async def get(self, key: str) -> str | None:
-        if key not in self._data:
-            return None
-        value, expires_at = self._data[key]
-        if expires_at and time.time() > expires_at:
-            del self._data[key]
-            return None
-        return value
-
-    async def set(self, key: str, value: str, *, ex: int) -> None:
-        self._data[key] = (value, time.time() + ex)
-
-    async def delete(self, key: str) -> None:
-        self._data.pop(key, None)
-
-    async def ping(self) -> bool:
-        return True
-
-    async def aclose(self) -> None:
-        pass
-
-
-@pytest.fixture
-async def auth_client(db_session: AsyncSession, monkeypatch):
-    fake = FakeRedis()
-    monkeypatch.setattr("app.main.redis_client", fake)
-    monkeypatch.setattr("app.services.auth_service.redis_client", fake)
-    # The lifespan must not hit the dev DB (configured via .env); tables are
-    # already created by the integration conftest.
-    monkeypatch.setattr("app.main.create_db_and_tables", AsyncMock())
-
-    async def override_get_session():
-        yield db_session
-
-    fastapi_app.dependency_overrides[get_session] = override_get_session
-
-    async with httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=fastapi_app),
-        base_url="http://testserver",
-    ) as client:
-        yield client
-
-    fastapi_app.dependency_overrides.clear()
 
 
 async def _create_admin(session: AsyncSession, email: str, password: str):

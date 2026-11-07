@@ -4,20 +4,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.services.appointment.queries import get_appointments_for_day
 from app.services.appointment.commands import create_appointment_from_owner, set_appointment_state
+from app.services.auth_service import require_business_id
 from app.models import AppointmentState
 
 router = APIRouter(tags=["Appointment"])
 
 @router.get("/appointments")
-async def get_appointments(business_id: int, date: date, session: AsyncSession = Depends(get_session)):
+async def get_appointments(date: date, business_id: int = Depends(require_business_id), session: AsyncSession = Depends(get_session)):
     appointments = await get_appointments_for_day(session=session, business_id=business_id, requested_date=date)
     if not appointments:
         return []
     return appointments
 
 @router.post("/appointments", status_code=status.HTTP_201_CREATED)
-async def add_appointment(business_id: int, phone_number: str, service_id: int, start_time: datetime,
+async def add_appointment(phone_number: str, service_id: int, start_time: datetime,
                           name: str | None = None, worker_id: int | None = None,
+                          business_id: int = Depends(require_business_id),
                           session: AsyncSession = Depends(get_session)):
     result = await create_appointment_from_owner(
         session=session, business_id=business_id, phone_number=phone_number, name=name,
@@ -39,7 +41,8 @@ async def add_appointment(business_id: int, phone_number: str, service_id: int, 
     return result
 
 @router.patch("/appointment/state", status_code=status.HTTP_204_NO_CONTENT)
-async def change_appointment_state(appointment_id: int, business_id: int, new_state: AppointmentState,
+async def change_appointment_state(appointment_id: int, new_state: AppointmentState,
+                                   business_id: int = Depends(require_business_id),
                                    session: AsyncSession = Depends(get_session)):
     rows_changed = await set_appointment_state(
         session=session, appointment_id=appointment_id, business_id=business_id, new_state=new_state,
