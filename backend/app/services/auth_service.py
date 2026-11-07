@@ -34,6 +34,34 @@ def _session_key(token: str) -> str:
     return f"sess:{token_key(token)}"
 
 
+def _rate_limit_key(email: str, ip: str) -> str:
+    """Redis key for the login attempt counter, one bucket per email+IP."""
+    return f"rate:login:{email.strip().lower()}:{ip}"
+
+
+async def check_login_rate_limit(email: str, ip: str) -> int | None:
+    """Count a login attempt; return Retry-After seconds when rate-limited.
+
+    Runs *before* any Argon2 work: hashing is the expensive step an attacker
+    wants to trigger, so this counter is what protects it. The window is fixed
+    (the key expires ``login_rate_window_seconds`` after the *first* attempt,
+    not on every attempt) so a slow trickle can't keep sliding the window open.
+    """
+    key = _rate_limit_key(email, ip)
+    attempts = await redis_client.incr(key)
+    if attempts == 1:
+        await redis_client.expire(key, settings.login_rate_window_seconds)
+    if attempts > settings.login_max_attempts:
+        ttl = await redis_client.ttl(key)
+        return ttl if ttl > 0 else settings.login_rate_window_seconds
+    return None
+
+
+async def reset_login_rate_limit(email: str, ip: str) -> None:
+    """Clear the attempt counter after a successful login."""
+    await redis_client.delete(_rate_limit_key(email, ip))
+
+
 async def authenticate(session: AsyncSession, email: str, password: str) -> AdminUser | None:
     """Verify email + password and return the admin, or None on any failure.
 

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     session_max_age_seconds: int = 2592000    # 30 days, cookie max-age
     session_path: str = "/"
 
+    # login rate limiting
+    login_max_attempts: int = 8
+    login_rate_window_seconds: int = 900     # 15 minutes
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()

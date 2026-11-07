@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -14,9 +14,19 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def login(
     payload: LoginRequest,
     response: Response,
+    request: Request,
     session: AsyncSession = Depends(get_session),
     x_client: str | None = Header(None),
 ):
+    client_ip = request.client.host if request.client else "unknown"
+    retry_after = await auth_service.check_login_rate_limit(payload.email, client_ip)
+    if retry_after is not None:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many login attempts. Try again later.",
+            headers={"Retry-After": str(retry_after)},
+        )
+
     admin = await auth_service.authenticate(session, payload.email, payload.password)
     if admin is None:
         raise HTTPException(
@@ -25,6 +35,7 @@ async def login(
         )
 
     token = await auth_service.create_session(admin.id)
+    await auth_service.reset_login_rate_limit(payload.email, client_ip)
 
     response.set_cookie(
         key=settings.session_cookie_name,

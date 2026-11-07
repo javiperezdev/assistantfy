@@ -36,6 +36,35 @@ class FakeRedis:
     async def delete(self, key: str) -> None:
         self._data.pop(key, None)
 
+    async def incr(self, key: str) -> int:
+        # An expired key counts as a fresh key, mirroring real Redis INCR.
+        if key in self._data:
+            _, expires_at = self._data[key]
+            if expires_at and time_module.time() > expires_at:
+                del self._data[key]
+        if key not in self._data:
+            self._data[key] = ("1", None)
+            return 1
+        value, expires_at = self._data[key]
+        new_value = int(value) + 1
+        self._data[key] = (str(new_value), expires_at)
+        return new_value
+
+    async def expire(self, key: str, seconds: int) -> bool:
+        if key not in self._data:
+            return False
+        value, _ = self._data[key]
+        self._data[key] = (value, time_module.time() + seconds)
+        return True
+
+    async def ttl(self, key: str) -> int:
+        if key not in self._data:
+            return -2
+        _, expires_at = self._data[key]
+        if expires_at is None:
+            return -1
+        return max(0, int(expires_at - time_module.time()))
+
     async def ping(self) -> bool:
         return True
 

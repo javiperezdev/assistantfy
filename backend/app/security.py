@@ -5,12 +5,15 @@ Nothing outside this module should hash a password or generate a session token,
 so hashing parameters and token format can be changed in one place.
 """
 import hashlib
+import logging
 import secrets
 
 from pwdlib import PasswordHash
 
 # Argon2id with the library's recommended parameters (OWASP's first choice).
 _password_hash = PasswordHash.recommended()
+
+logger = logging.getLogger(__name__)
 
 
 def hash_password(raw_password: str) -> str:
@@ -22,6 +25,7 @@ def verify_password(raw_password: str, password_hash: str) -> bool:
         return _password_hash.verify(raw_password, password_hash)
     except Exception:
         # A corrupted hash in the database means "cannot authenticate", not a 500.
+        logger.exception("Password hash verification failed (corrupt or unsupported format)")
         return False
 
 
