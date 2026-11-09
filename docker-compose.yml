@@ -13,14 +13,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5433:5432"
 
   redis:
     image: redis:7
     container_name: assistantfy_redis
-    ports:
-      - "127.0.0.1:6379:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     healthcheck:
@@ -35,8 +34,10 @@ services:
       - ./backend:/assistantfy
     container_name: assistantfy_api
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - PYTHONUNBUFFERED=1
     env_file:

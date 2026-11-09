@@ -11,14 +11,14 @@ Ordered by what actually blocks shipping. 🔴 must be fixed before the MVP goes
 
 - [ ] **Webhook idempotency / dedup**
   Meta retries deliveries. Without a message-ID dedup (Redis `SETNX` on `value.messages[0].id`), duplicates double-book, double-reply and double-charge.
-- [ ] **Redis auth + isolation**
-  - [ ] `requirepass` in Redis + `REDIS_URL` with a hex password (`openssl rand -hex 24`)
-  - [ ] Fix healthcheck: `redis-cli -a "$REDIS_PASSWORD" ping`
-  - [ ] Remove `ports:` from `db` and `redis` in `docker-compose.yml` (min acceptable: `127.0.0.1:5433:5432`)
+- [x] **Redis auth + isolation**
+  - [x] `requirepass` in Redis + `REDIS_URL` with a hex password (`openssl rand -hex 24`)
+  - [x] Fix healthcheck: `redis-cli -a "$REDIS_PASSWORD" ping` (used `REDISCLI_AUTH`, so no `-a`)
+  - [x] Remove `ports:` from `db` and `redis` in `docker-compose.yml` (min acceptable: `127.0.0.1:5433:5432`)
 - [ ] **Session cookies secure in production**
   - [ ] `SESSION_COOKIE_SECURE=true` + HSTS (only after TLS is live)
 - [ ] **Secrets hygiene**
-  - [ ] `chmod 600 .env`
+  - [x] `chmod 600 .env`
   - [ ] Create `.env.example` with placeholders
   - [ ] Rotate `AI_API_KEY` and `WHATSAPP_TOKEN` at deploy (WhatsApp token changes per server)
 
@@ -42,7 +42,7 @@ Ordered by what actually blocks shipping. 🔴 must be fixed before the MVP goes
 - [ ] **Least-privilege Postgres role** (`assistantfy_app`, no superuser); app connects with it, not `admin`
 - [ ] **Backups**: client-side encrypted `pg_dump` (age/gpg) + private bucket + a real restoration test
 - [ ] **Provider security group / `DOCKER-USER` rules** (UFW does not filter Docker ports)
-- [ ] **`/health` endpoint + `api` container healthcheck** — this is the "GET /health 404"
+- [ ] **`/health` endpoint + `api` container healthcheck** — the "GET /health 404" was OpenCode's vLLM discovery probing `127.0.0.1:8000`, not a real failure; add it only when a deploy/monitor actually consumes it
 - [ ] **Global exception handler** (clean 500s, no stack-trace leaks) + initialize Sentry (already in `requirements.txt`)
 - [ ] **Data constraints**: `CHECK` on `day_of_week` 1–7, `end_time > start_time`, positive price/duration, `NOT NULL` where required
 - [ ] **Webhook payload validation hardening** (malformed/absent `entry`/`value` currently relies on a broad try/except)
