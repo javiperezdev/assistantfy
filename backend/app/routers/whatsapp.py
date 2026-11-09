@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import logging
 from fastapi import APIRouter, HTTPException, Query, Request, BackgroundTasks, Depends
 from app.config import settings
@@ -26,6 +28,13 @@ async def get_webhook(mode: str = Query(alias="hub.mode"), verify_token: str = Q
     
     raise HTTPException(status_code=403, detail="Access is forbidden!")
 
+def _has_valid_signature(raw_body: bytes, signature_header: str | None) -> bool:
+    '''Meta signs the raw body with the app secret: "sha256=<hex digest>".'''
+    if not signature_header or not signature_header.startswith("sha256="):
+        return False
+    expected = hmac.new(settings.meta_app_secret.encode(), raw_body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature_header.removeprefix("sha256="))
+
 '''
 Immediately returns 200 OK to prevent Meta webhook timeouts. 
 The AI response is handled via a background_task, 
@@ -34,6 +43,12 @@ as the generation process exceeds Meta's mandatory response window.
 
 @router.post("/webhook")
 async def post_webhook(body: WebhookBody, request: Request, background_tasks: BackgroundTasks, session: AsyncSession = Depends(get_session)):
+    # Verify Meta's HMAC before doing anything: the body is public input.
+    raw_body = await request.body()
+    if not _has_valid_signature(raw_body, request.headers.get("X-Hub-Signature-256")):
+        logger.warning("Webhook rejected | invalid signature ip=%s", request.client.host if request.client else None)
+        raise HTTPException(status_code=403, detail="Invalid signature")
+
     client_phone_number = None
     try:
         value = body.entry[0].changes[0].value

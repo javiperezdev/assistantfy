@@ -4,6 +4,8 @@ class Settings(BaseSettings):
     # tokens and private data
     verification_token: str
     whatsapp_token: str
+    # Used to verify X-Hub-Signature-256 on incoming webhooks. Required, never empty.
+    meta_app_secret: str 
     phone_number_id: str
     ai_api_key: str
 
