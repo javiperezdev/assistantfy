@@ -21,6 +21,7 @@ def test_webhook_post(client):
             {
                 "changes": [
                     {
+                        "field": "messages",
                         "value": {
                             "metadata": {
                                 "display_phone_number": "123456",
@@ -62,6 +63,7 @@ def test_webhook_unknown_business_returns_ok_without_replying(client, monkeypatc
             {
                 "changes": [
                     {
+                        "field": "messages",
                         "value": {
                             "metadata": {
                                 "display_phone_number": "999999",
@@ -88,6 +90,31 @@ def test_webhook_unknown_business_returns_ok_without_replying(client, monkeypatc
     send_mock.assert_not_awaited()
 
 
+def test_webhook_account_update_is_ignored(client):
+    payload = {
+        "entry": [
+            {
+                "id": "1149482257519510",
+                "changes": [
+                    {
+                        "value": {
+                            "event": "WEBHOOK_CONFIG_UPDATED",
+                            "event_time": "2026-11-11T16:19:04+0000",
+                            "actor": {"business_id": "1968202750772648"},
+                            "details": {"change_action": "subscribe"},
+                        },
+                        "field": "account_update",
+                    }
+                ],
+            }
+        ]
+    }
+    raw_body = json.dumps(payload).encode()
+    response = client.post("/webhook", content=raw_body, headers=_sign(raw_body))
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_webhook_rejects_missing_signature(client):
     response = client.post("/webhook", json={"entry": []})
 
@@ -112,3 +139,52 @@ def test_webhook_rejects_tampered_body(client):
     response = client.post("/webhook", content=tampered, headers=headers)
 
     assert response.status_code == 403
+
+
+def test_webhook_non_text_message_replies_with_client_number(client, monkeypatch):
+    import app.routers.whatsapp as whatsapp_router
+
+    async def _business(session, phone_number):
+        return 1
+
+    monkeypatch.setattr(whatsapp_router, "get_id_by_phone_number", _business)
+    send_mock = AsyncMock()
+    monkeypatch.setattr(whatsapp_router, "send_message", send_mock)
+
+    payload = {
+        "entry": [{"changes": [{
+            "field": "messages",
+            "value": {
+                "metadata": {"display_phone_number": "123456", "phone_number_id": "789"},
+                "messages": [{"from": "111222333", "type": "audio"}]
+            }
+        }]}]
+    }
+    raw_body = json.dumps(payload).encode()
+    response = client.post("/webhook", content=raw_body, headers=_sign(raw_body))
+
+    assert response.status_code == 200
+    send_mock.assert_awaited_once()
+    assert send_mock.await_args.args[0] == "111222333"
+    assert "only send text" in send_mock.await_args.args[1]
+
+
+def test_real_meta_payloads_are_acknowledged(client, monkeypatch):
+    """Contract test: every real Meta payload shape we've seen must be answered 200."""
+    import app.routers.whatsapp as whatsapp_router
+    from pathlib import Path
+
+    async def _no_business(session, phone_number):
+        return None
+
+    monkeypatch.setattr(whatsapp_router, "get_id_by_phone_number", _no_business)
+
+    fixtures = Path(__file__).parent / "fixtures"
+    paths = sorted(fixtures.glob("*.json"))
+    assert paths, "no fixtures found"
+
+    for path in paths:
+        raw_body = path.read_bytes()
+        response = client.post("/webhook", content=raw_body, headers=_sign(raw_body))
+        assert response.status_code == 200, f"{path.name} -> {response.status_code}"
+        assert response.json() == {"status": "ok"}, path.name

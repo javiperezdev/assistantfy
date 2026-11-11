@@ -18,10 +18,11 @@ class Metadata(BaseModel):
 
 class Value(BaseModel):
     messages: list[Message] | None = None # It can be none, to avoid status calls
-    metadata: Metadata
+    metadata: Metadata | None = None      # None on account_update/config events
     statuses: list[dict] | None = None
 
 class Change(BaseModel):
+    field: str | None = None  # Meta's discriminator: "messages", "account_update", ...
     value: Value | None = None
 
 class Entry(BaseModel):

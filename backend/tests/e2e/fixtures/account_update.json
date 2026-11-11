@@ -1,0 +1,20 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "1149482257519510",
+      "time": 1794413946,
+      "changes": [
+        {
+          "value": {
+            "event": "WEBHOOK_CONFIG_UPDATED",
+            "event_time": "2026-11-11T16:19:04+0000",
+            "actor": {"business_id": "1968202750772648"},
+            "details": {"change_action": "subscribe"}
+          },
+          "field": "account_update"
+        }
+      ]
+    }
+  ]
+}
