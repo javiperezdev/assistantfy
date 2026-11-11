@@ -19,9 +19,11 @@ Here's what you can do with Assistantfy:
 
 * As a client, you can chat via WhatsApp in order to book and cancel an appointment, as well as get your questions answered (schedules, services...).
 
-* As a business owner, you can configure your business (workers, services, worker-service assignments, and business hours).
+* As a business owner, you can: 
 
-* And we are on the way to implementing a functionality to view all your appointments.
+- configure your business (workers, services, worker-service assignments, and business hours).
+
+- check  your appointments (filter by name, worker and status) and modify your appointments (booked, completed, no show, cancelled)
 
 ## 📚 What I Learned
 
@@ -37,23 +39,17 @@ It's a little bit of a vague and short description because this project changed 
 
 ## 🚦 Running the Project
 
-To run the project in your local environment, follow these steps:
+1. Clone the repo and install the backend dependencies: `pip install -r backend/requirements.txt`.
 
-1. Clone the repository to your local machine.
+2. Copy `.env.example` to `.env` and fill it in. The Meta values must come from the **same** WhatsApp Cloud API app, or Meta returns `403` on incoming and `code 100` on outgoing.
 
-2. Create a `.env` file with all the required API keys.
+3. `docker compose up -d`, then create your admin and business: `docker compose exec api python -m app.scripts.create_admin`.
 
-3. Register with Meta for Developers (if you want to use the AI agent).
+4. Expose the API on public HTTPS (ngrok works) and register `<public-url>/webhook` in Meta → WhatsApp → Configuration with the same verify token and the `messages` field subscribed. Set the business `phone_number` in the DB to the `display_phone_number` Meta reports.
 
-4. Install the required dependencies: `pip install -r backend/requirements.txt`.
+5. Message that number from WhatsApp (client side) or open http://localhost:5173 (owner side).
 
-5. Execute `docker compose up -d` in the terminal.
-
-   Create your admin account (and its business) so you can log in:
-
-   docker compose exec api python -m app.scripts.create_admin
-
-6. Open WhatsApp if you want to use the client side, or http://localhost:5173 if you want to test the business owner side.
+> Use a System User token (the default one expires in 24 h). After any `.env` change run `docker compose up -d --force-recreate api`; `restart` keeps the old environment.
 
 ## 🍿 Video
 
@@ -63,4 +59,4 @@ To run the project in your local environment, follow these steps:
 
 ### Client perspective 
 
-Coming soon!
+![Demo de Assistantfy - Client perspective](assets/client-demo.gif)

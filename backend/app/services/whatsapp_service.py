@@ -34,7 +34,11 @@ async def send_message(phone_number : str, content: str, httpx_client: httpx.Asy
         logger.info("WhatsApp sent | to=%s status=%s msg_id=%s content=%.100s",
                     phone_number, response.status_code, msg_id, content)
     except Exception as e:
-        logger.error("WhatsApp send failed | to=%s error=%s", phone_number, e)
+        # Meta explains the real failure in the response body (expired token 190,
+        # code 100/subcode 33 when the token can't access the phone number id...).
+        # raise_for_status() alone only says "400 Bad Request", so log the body too.
+        body = getattr(getattr(e, "response", None), "text", "")
+        logger.error("WhatsApp send failed | to=%s error=%s body=%.300s", phone_number, e, body)
         raise
 
     
