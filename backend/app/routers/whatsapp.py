@@ -53,9 +53,11 @@ async def post_webhook(body: WebhookBody, request: Request, background_tasks: Ba
     try:
         value = body.entry[0].changes[0].value
         business_phone_number = value.metadata.display_phone_number
-        # While we don't implement a functionality to create a business, when it doesn't exist, we will maintain this log.
         logger.info(f"BUSINESS PHONE NUMBER: {business_phone_number}")
         business_id = await get_id_by_phone_number(session, business_phone_number)
+        if business_id is None:
+            logger.warning("Webhook ignored | business not found phone=%s", business_phone_number)
+            return {"status": "ok"}
         message = value.messages
         if message is not None:
             if message[0].text is None:
